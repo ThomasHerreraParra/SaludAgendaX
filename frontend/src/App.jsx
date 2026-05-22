@@ -6,6 +6,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import Register from './pages/Register'
+
 
 const App = () => {
   return (
@@ -17,6 +19,7 @@ const App = () => {
         <Route path="/dashboard/doctor" element={<Dashboard />} />
         <Route path="/dashboard/admin" element={<Dashboard />} />
         <Route path="/dashboard/superadmin" element={<Dashboard />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </BrowserRouter>
   )
