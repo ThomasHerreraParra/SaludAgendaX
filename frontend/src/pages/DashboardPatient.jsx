@@ -5,7 +5,7 @@
 import { useNavigate } from 'react-router-dom'
 import snoopy from '../assets/Snoopy_trabajando.jpg'
 
-const Dashboard = () => {
+const DashboardPatient = () => {
   const username = localStorage.getItem('username')
   const role = localStorage.getItem('role')
   const navigate = useNavigate()
@@ -22,7 +22,7 @@ const Dashboard = () => {
       </h1>
       <p className="text-gray-500 text-lg">Rol: {role}</p>
       <h2 className="text-2xl font-semibold text-gray-600">
-         Frontend en desarrollo 
+         Frontend y Backend en desarrollo , paciencia por favor
       </h2>
       <img src={snoopy} alt="Snoopy trabajando" className="w-64 rounded-xl shadow-lg" />
       <button
@@ -35,4 +35,5 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default DashboardPatient
+

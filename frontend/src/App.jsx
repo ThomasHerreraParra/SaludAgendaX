@@ -5,7 +5,8 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
+import DashboardPatient from './pages/DashboardPatient'
+import DashboardDoctor from './pages/DashboardDoctor'
 import Register from './pages/Register'
 
 
@@ -15,10 +16,10 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/dashboard/patient" element={<Dashboard />} />
-        <Route path="/dashboard/doctor" element={<Dashboard />} />
-        <Route path="/dashboard/admin" element={<Dashboard />} />
-        <Route path="/dashboard/superadmin" element={<Dashboard />} />
+        <Route path="/dashboard/patient" element={<DashboardPatient />} />
+        <Route path="/dashboard/doctor" element={<DashboardDoctor />} />
+        <Route path="/dashboard/admin" element={<DashboardPatient />} />
+        <Route path="/dashboard/superadmin" element={<DashboardPatient />} />
         <Route path="/register" element={<Register />} />
       </Routes>
     </BrowserRouter>

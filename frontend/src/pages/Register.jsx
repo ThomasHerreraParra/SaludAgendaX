@@ -12,6 +12,8 @@ import { useState } from 'react'
 // Hook para navegar entre rutas
 import { useNavigate } from 'react-router-dom'
 
+import { registerUser } from '../services/api'
+
 const Register = () => {
 
   // Hook para redireccionar entre páginas
@@ -75,43 +77,42 @@ const Register = () => {
   // ==============================
 
   const handleSubmit = async (e) => {
+  e.preventDefault()
+  setLoading(true)
+  setError('')
 
-    // Evita recargar la página
-    e.preventDefault()
-
-    // Activa loading
-    setLoading(true)
-
-    // Limpia errores anteriores
-    setError('')
-
-    try {
-
-      // ========================================
-      // AQUÍ CONECTARÁS EL BACKEND MÁS ADELANTE
-      // ========================================
-
-      console.log(formData)
-
-      // Simulación de espera
-      setTimeout(() => {
-
-        // Redirige al login
-        navigate('/login')
-
-      }, 1000)
-
-    } catch (err) {
-
-      // Muestra error si algo falla
-      setError('Error al crear la cuenta')
-
-    } finally {
-
-      // Desactiva loading
-      setLoading(false)
+  try {
+    // Construye el objeto con los datos del formulario
+    // El backend espera 'document' no 'document_number'
+    const data = {
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+      document: formData.document_number,
+      role: formData.role,
+      ...(formData.eps && { eps: formData.eps }),
+      ...(formData.phone && { phone: formData.phone }),
     }
+
+    // Llama al backend para registrar el usuario
+    await registerUser(data)
+
+    // Redirige al login si fue exitoso
+    navigate('/login')
+
+  } catch (err) {
+    // Muestra el error que devuelve el backend
+    const errData = err.response?.data
+    if (errData) {
+      const firstError = Object.values(errData)[0]
+      setError(Array.isArray(firstError) ? firstError[0] : firstError)
+    } else {
+      setError('Error al crear la cuenta')
+    }
+  } finally {
+    setLoading(false)
   }
+}
 
   // ==============================
   // RENDER DEL COMPONENTE

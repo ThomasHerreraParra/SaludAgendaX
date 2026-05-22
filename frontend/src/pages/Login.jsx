@@ -7,6 +7,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { loginUser } from '../services/api'
+import { Eye, EyeOff } from 'lucide-react'
 
 const Login = () => {
   // Estados para los campos del formulario
@@ -21,6 +22,8 @@ const Login = () => {
 
   // Hook para redirigir a otra página
   const navigate = useNavigate()
+
+  const [showPassword, setShowPassword] = useState(false)
 
   // Función que se ejecuta al enviar el formulario
   const handleSubmit = async (e) => {
@@ -80,24 +83,34 @@ const Login = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Ingresa tu usuario"
                 required
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500"
               />
             </div>
 
-            {/* Campo contraseña */}
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ingresa tu contraseña"
-                required
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
+            {/* Campo contraseña con botón para mostrar/ocultar */}
+<div>
+  <label className="block text-sm text-gray-500 mb-1">
+    Contraseña
+  </label>
+  <div className="relative">
+    <input
+      type={showPassword ? 'text' : 'password'}
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      placeholder="Ingresa tu contraseña"
+      required
+      className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 pr-12"
+    />
+    <button
+  type="button"
+  onClick={() => setShowPassword(!showPassword)}
+  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+>
+  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+</button>
+  </div>
+</div>
+
 
             {/* Mensaje de error */}
             {error && (
