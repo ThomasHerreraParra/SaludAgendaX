@@ -1,145 +1,176 @@
-// Login.jsx
-// Página de inicio de sesión de SaludAgendaX
-// Se conecta al endpoint POST /api/users/login/
-// Redirige al dashboard correspondiente según el rol del usuario
-// Diseño: dos columnas — formulario izquierda, panel de color derecha
-
+// src/pages/Login.jsx
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { loginUser } from '../services/api'
+import { useNavigate, Link } from 'react-router-dom'
+import { login } from '../api/auth'
+import loginBanner from '../assets/loginbannerderecho.jpg'
+
+const ROLE_ROUTES = {
+  patient: '/dashboard/patient',
+  doctor: '/dashboard/doctor',
+  admin: '/dashboard/admin',
+  superadmin: '/dashboard/superadmin',
+}
 
 const Login = () => {
-  // Estados para los campos del formulario
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-
-  // Estado para mostrar errores al usuario
+  const navigate = useNavigate()
+  const [form, setForm] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
-
-  // Estado para deshabilitar el botón mientras se procesa
   const [loading, setLoading] = useState(false)
 
-  // Hook para redirigir a otra página
-  const navigate = useNavigate()
+  const handleChange = (e) =>
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
 
-  // Función que se ejecuta al enviar el formulario
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
     try {
-      // Llama al backend con usuario y contraseña
-      const data = await loginUser(username, password)
-
-      // Guarda el token JWT y el rol en localStorage
-      localStorage.setItem('access', data.access)
-      localStorage.setItem('refresh', data.refresh)
+      const { data } = await login(form.username, form.password)
+      localStorage.setItem('access_token', data.access)
+      localStorage.setItem('refresh_token', data.refresh)
       localStorage.setItem('role', data.role)
       localStorage.setItem('username', data.username)
 
-      // Redirige según el rol del usuario
-      if (data.role === 'patient') navigate('/dashboard/patient')
-      else if (data.role === 'doctor') navigate('/dashboard/doctor')
-      else if (data.role === 'admin') navigate('/dashboard/admin')
-      else if (data.role === 'superadmin') navigate('/dashboard/superadmin')
-
+      const route = ROLE_ROUTES[data.role] || '/dashboard/patient'
+      navigate(route)
     } catch (err) {
-      // Muestra error si las credenciales son incorrectas
-      setError('Usuario o contraseña incorrectos')
+      setError(
+        err.response?.data?.detail ||
+          'Credenciales incorrectas. Verifica tu usuario y contraseña.'
+      )
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    // Fondo blanco, pantalla completa, centrado
-     // Fondo blanco puro en toda la página
-<div className="min-h-screen flex items-center justify-center" style={{backgroundColor: '#ffffff'}}>
-  <div className="flex w-full max-w-4xl rounded-2xl overflow-hidden shadow-lg border border-gray-100" style={{minHeight: '500px'}}>
-    
-        {/* Columna izquierda — formulario */}
-        <div className="flex-1 bg-white px-12 py-16 flex flex-col justify-center">
+    <div className="min-h-screen bg-slate-50 flex">
 
-          {/* Encabezado */}
-          <p className="text-sm text-gray-400 mb-1">Sistema de Gestión de Citas Médicas</p>
-          <h1 className="text-2xl font-semibold text-gray-800 mb-1">SaludAgendaX</h1>
-          <p className="text-gray-500 mb-8">Bienvenido, ingresa a tu cuenta</p>
+      {/* Panel izquierdo — imagen con overlay */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 relative overflow-hidden">
 
-          {/* Formulario */}
+        {/* Imagen de fondo */}
+        <img
+          src={loginBanner}
+          alt="SaludAgendaX"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+
+        {/* Overlay oscuro para contraste */}
+        <div className="absolute inset-0 bg-teal-900/70" />
+
+        {/* Logo */}
+        <div className="relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              <span className="text-white text-xl font-bold">+</span>
+            </div>
+            <span className="text-white text-2xl font-bold tracking-tight">SaludAgendaX</span>
+          </div>
+        </div>
+
+        {/* Texto central */}
+        <div className="relative z-10">
+          <h2 className="text-white text-4xl font-bold leading-tight mb-4 drop-shadow-lg">
+            Gestión médica<br />inteligente y segura
+          </h2>
+          <p className="text-teal-100 text-lg drop-shadow">
+            Agenda citas, gestiona pacientes y médicos desde un solo lugar.
+          </p>
+        </div>
+
+        {/* Estadísticas */}
+        <div className="relative z-10 flex gap-8">
+          {[
+            { label: 'Pacientes', value: '—' },
+            { label: 'Médicos', value: '—' },
+            { label: 'EPS soportadas', value: '—' },
+          ].map(({ label, value }) => (
+            <div key={label}>
+              <div className="text-white text-3xl font-bold drop-shadow">{value}</div>
+              <div className="text-teal-200 text-sm">{label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Panel derecho — formulario */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="w-full max-w-md">
+
+          {/* Logo móvil */}
+          <div className="flex items-center gap-2 mb-10 lg:hidden">
+            <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold">+</span>
+            </div>
+            <span className="text-slate-800 text-xl font-bold">SaludAgendaX</span>
+          </div>
+
+          <h1 className="text-3xl font-bold text-slate-800 mb-2">Bienvenido de nuevo</h1>
+          <p className="text-slate-500 mb-8">Ingresa tus credenciales para continuar</p>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 mb-6 text-sm flex items-start gap-3">
+              <span className="text-red-400 mt-0.5">⚠</span>
+              <span>{error}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
-
-            {/* Campo usuario */}
             <div>
-              <label className="block text-sm text-gray-600 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 Usuario
               </label>
               <input
                 type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Ingresa tu usuario"
+                name="username"
+                value={form.username}
+                onChange={handleChange}
+                placeholder="Tu nombre de usuario"
                 required
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
               />
             </div>
 
-            {/* Campo contraseña */}
             <div>
-              <label className="block text-sm text-gray-600 mb-1">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 Contraseña
               </label>
               <input
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Ingresa tu contraseña"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="••••••••"
                 required
-                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-gray-800 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
               />
             </div>
 
-            {/* Mensaje de error */}
-            {error && (
-              <p className="text-red-500 text-sm text-center">{error}</p>
-            )}
-
-            {/* Botón iniciar sesión */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-cyan-600 hover:bg-teal-800 text-white font-medium py-2.5 rounded-lg transition duration-200 disabled:opacity-50"
+              className="w-full bg-teal-600 hover:bg-teal-700 disabled:bg-teal-400 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 flex items-center justify-center gap-2"
             >
-              {loading ? 'Ingresando...' : 'Iniciar sesión'}
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Ingresando...
+                </>
+              ) : (
+                'Iniciar sesión'
+              )}
             </button>
-
-            {/* Botón crear cuenta */}
-            <button
-              type="button"
-              onClick={() => navigate('/register')}
-              className="w-full bg-white border border-gray-00 hover:bg-gray-50 text-gray-500 font-medium py-2.5 rounded-lg transition duration-200"
-            >
-              Crear cuenta
-            </button>
-
           </form>
 
-          {/* Pie de página */}
-          <p className="text-xs text-gray-300 text-center mt-8">
-            Universidad del Valle · Ingeniería de Sistemas
+          <p className="text-center text-slate-500 text-sm mt-8">
+            ¿No tienes cuenta?{' '}
+            <Link to="/register" className="text-teal-600 font-semibold hover:underline">
+              Regístrate aquí
+            </Link>
           </p>
-
         </div>
-
-        {/* Columna derecha — imagen médica, ocupa toda la altura */}
-<div className="flex-1 relative">
-  <img
-    src="/src/assets/loginbannerderecho.jpg"
-    alt="Imagen médica"
-    style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center'}}
-/>
-</div>
-
       </div>
     </div>
   )

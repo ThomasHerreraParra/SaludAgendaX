@@ -1,734 +1,346 @@
-// Register.jsx
-// Página de registro de usuarios para SaludAgendaX
-// Diseño moderno tipo SaaS inspirado en la referencia enviada
-// Mantiene la misma identidad visual del Login.jsx
-// Estructura:
-// - Panel izquierdo → imagen + texto decorativo
-// - Panel derecho → formulario de registro
+// src/pages/Register.jsx
+import { useState, useCallback } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { register } from '../api/auth'
+import registerImagen from '../assets/registerimagen.jpg'
 
-// Hook para manejar estados
-import { useState } from 'react'
-
-// Hook para navegar entre rutas
-import { useNavigate } from 'react-router-dom'
+const EPS_LIST = [
+  'Sura', 'Sanitas', 'Nueva EPS', 'Compensar', 'Coosalud',
+  'Famisanar', 'Salud Total', 'Aliansalud', 'Comfenalco', 'Mutual Ser',
+]
 
 const Register = () => {
-
-  // Hook para redireccionar entre páginas
   const navigate = useNavigate()
-
-  // ==============================
-  // ESTADOS DEL FORMULARIO
-  // ==============================
-
-  // Estado principal que guarda todos los datos del usuario
-  const [formData, setFormData] = useState({
-
-    // Nombre de usuario
+  const [form, setForm] = useState({
     username: '',
-
-    // Correo electrónico
+    first_name: '',
+    last_name: '',
     email: '',
-
-    // Contraseña
-    password: '',
-
-    // Documento de identidad
-    document_number: '',
-
-    // Rol del usuario
-    role: 'patient',
-
-    // EPS del usuario (opcional)
+    document: '',
+    phone: '',
     eps: '',
-
-    // Teléfono del usuario (opcional)
-    phone: ''
+    password: '',
+    confirm_password: '',
+    role: 'patient',
   })
-
-  // Estado para mostrar loading mientras se procesa
+  const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
-  // Estado para mostrar errores
-  const [error, setError] = useState('')
+  // useCallback evita que el componente Field se re-renderice
+  // y pierda el foco en cada pulsación de tecla
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target
+    setForm((f) => ({ ...f, [name]: value }))
+    setErrors((er) => ({ ...er, [name]: null }))
+  }, [])
 
-  // ==============================
-  // FUNCIÓN PARA ACTUALIZAR INPUTS
-  // ==============================
-
-  // Esta función actualiza automáticamente el campo
-  // que el usuario esté escribiendo
-  const handleChange = (e) => {
-
-    setFormData({
-
-      // Mantiene los datos anteriores
-      ...formData,
-
-      // Actualiza SOLO el input modificado
-      [e.target.name]: e.target.value
-    })
+  const validate = () => {
+    const newErrors = {}
+    if (!form.username.trim()) newErrors.username = 'El usuario es requerido'
+    if (!form.first_name.trim()) newErrors.first_name = 'El nombre es requerido'
+    if (!form.last_name.trim()) newErrors.last_name = 'El apellido es requerido'
+    if (!form.email.trim()) newErrors.email = 'El correo es requerido'
+    if (!form.document.trim()) newErrors.document = 'El documento es requerido'
+    if (!form.eps) newErrors.eps = 'Selecciona tu EPS'
+    if (form.password.length < 8) newErrors.password = 'Mínimo 8 caracteres'
+    if (form.password !== form.confirm_password)
+      newErrors.confirm_password = 'Las contraseñas no coinciden'
+    return newErrors
   }
 
-  // ==============================
-  // ENVÍO DEL FORMULARIO
-  // ==============================
-
   const handleSubmit = async (e) => {
-
-    // Evita recargar la página
     e.preventDefault()
+    const validationErrors = validate()
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      return
+    }
 
-    // Activa loading
     setLoading(true)
-
-    // Limpia errores anteriores
-    setError('')
-
     try {
-
-      // ========================================
-      // AQUÍ CONECTARÁS EL BACKEND MÁS ADELANTE
-      // ========================================
-
-      console.log(formData)
-
-      // Simulación de espera
-      setTimeout(() => {
-
-        // Redirige al login
-        navigate('/login')
-
-      }, 1000)
-
+      const { confirm_password, ...payload } = form
+      await register(payload)
+      setSuccess(true)
+      setTimeout(() => navigate('/login'), 2000)
     } catch (err) {
-
-      // Muestra error si algo falla
-      setError('Error al crear la cuenta')
-
+      const data = err.response?.data || {}
+      const mapped = {}
+      Object.entries(data).forEach(([key, val]) => {
+        mapped[key] = Array.isArray(val) ? val[0] : val
+      })
+      setErrors(mapped)
     } finally {
-
-      // Desactiva loading
       setLoading(false)
     }
   }
 
-  // ==============================
-  // RENDER DEL COMPONENTE
-  // ==============================
+  if (success) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl p-10 shadow-sm border border-slate-100 text-center max-w-sm">
+          <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">✓</span>
+          </div>
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">¡Registro exitoso!</h2>
+          <p className="text-slate-500">Redirigiendo al inicio de sesión...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
+    <div className="min-h-screen bg-slate-50 flex">
 
-    // Contenedor principal
-    // Pantalla completa centrada
-    // Fondo blanco como el login
-    <div
-      className="min-h-screen flex items-center justify-center px-6 py-10"
-      style={{ backgroundColor: '#ffffff' }}
-    >
+      {/* Panel izquierdo — imagen */}
+      <div className="hidden lg:flex lg:w-2/5 flex-col justify-between p-12 relative overflow-hidden">
+        <img
+          src={registerImagen}
+          alt="Registro SaludAgendaX"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-teal-900/65" />
 
-      {/* ================================================= */}
-      {/* CARD PRINCIPAL */}
-      {/* ================================================= */}
-
-      <div
-        className="
-          w-full
-          max-w-6xl
-          bg-white
-          rounded-3xl
-          overflow-hidden
-          shadow-xl
-          border
-          border-gray-100
-          flex
-        "
-
-        // Altura mínima
-        style={{ minHeight: '760px' }}
-      >
-
-        {/* ================================================= */}
-        {/* PANEL IZQUIERDO */}
-        {/* Imagen + decoración */}
-        {/* ================================================= */}
-
-        <div
-          className="
-            hidden
-            md:flex
-            flex-1
-            relative
-            bg-gray-50
-            items-center
-            justify-center
-          "
-        >
-
-          {/* Decoración de puntos */}
-          <div
-            className="
-              absolute
-              top-16
-              right-20
-              grid
-              grid-cols-10
-              gap-3
-              opacity-40
-            "
-          >
-
-            {
-              // Genera automáticamente 120 punticos decorativos
-              Array.from({ length: 120 }).map((_, index) => (
-
-                <div
-                  key={index}
-                  className="
-                    w-1.5
-                    h-1.5
-                    bg-cyan-300
-                    rounded-full
-                  "
-                />
-
-              ))
-            }
-
-          </div>
-
-          {/* ================================= */}
-          {/* IMAGEN CIRCULAR */}
-          {/* ================================= */}
-
-          <div className="relative z-10">
-
-            {/* Contenedor circular */}
-            <div
-              className="
-                w-[420px]
-                h-[420px]
-                rounded-full
-                overflow-hidden
-                shadow-2xl
-                border-8
-                border-white
-              "
-            >
-
-              {/* Imagen */}
-              <img
-                src="/src/assets/registerimagen.jpg"
-                alt="Registro"
-
-                className="
-                  w-full
-                  h-full
-                  object-cover
-                "
-              />
-
+        <div className="relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+              <span className="text-white text-xl font-bold">+</span>
             </div>
-
+            <span className="text-white text-2xl font-bold tracking-tight">SaludAgendaX</span>
           </div>
-
-          {/* ================================= */}
-          {/* TEXTO INFERIOR */}
-          {/* ================================= */}
-
-          <div className="absolute bottom-16 left-16">
-
-            <h2
-              className="
-                text-4xl
-                font-semibold
-                text-gray-800
-                mb-4
-              "
-            >
-              Únete a SaludAgendaX
-            </h2>
-
-            <p
-              className="
-                text-gray-500
-                max-w-md
-                leading-relaxed
-              "
-            >
-              Gestiona tus citas médicas de manera rápida,
-              segura y eficiente desde cualquier lugar.
-            </p>
-
-          </div>
-
         </div>
 
-        {/* ================================================= */}
-        {/* PANEL DERECHO */}
-        {/* FORMULARIO */}
-        {/* ================================================= */}
+        <div className="relative z-10">
+          <h2 className="text-white text-3xl font-bold leading-tight mb-4 drop-shadow-lg">
+            Únete a nuestra<br />red de salud
+          </h2>
+          <p className="text-teal-100 text-base drop-shadow">
+            Registra tu cuenta y agenda citas médicas de forma fácil y rápida.
+          </p>
+        </div>
 
-        <div
-          className="
-            flex-1
-            bg-white
-            px-10
-            py-12
-            flex
-            flex-col
-            justify-center
-          "
-        >
+        <div className="relative z-10">
+          <p className="text-teal-200 text-sm">
+            ¿Ya tienes cuenta?{' '}
+            <Link to="/login" className="text-white font-semibold underline">
+              Inicia sesión
+            </Link>
+          </p>
+        </div>
+      </div>
 
-          {/* ================================= */}
-          {/* ENCABEZADO */}
-          {/* ================================= */}
+      {/* Panel derecho — formulario */}
+      <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
+        <div className="w-full max-w-xl py-8">
 
-          <div className="mb-8">
-
-            <h1
-              className="
-                text-4xl
-                font-bold
-                text-cyan-700
-                mb-2
-              "
-            >
-              Crear cuenta
-            </h1>
-
-            <p className="text-gray-500">
-              Completa tus datos para registrarte
-            </p>
-
-          </div>
-
-          {/* ================================= */}
-          {/* FORMULARIO */}
-          {/* ================================= */}
-
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-5"
+          {/* Botón de regreso — arriba a la izquierda */}
+          <button
+            onClick={() => navigate('/login')}
+            className="flex items-center gap-2 text-slate-500 hover:text-teal-600 transition-colors mb-6 group"
           >
+            <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span>
+            <span className="text-sm font-medium">Volver al inicio de sesión</span>
+          </button>
 
-            {/* ================================= */}
-            {/* INPUT USUARIO */}
-            {/* ================================= */}
+          <h1 className="text-2xl font-bold text-slate-800 mb-1">Crear cuenta</h1>
+          <p className="text-slate-500 mb-8">Completa tus datos para registrarte como paciente</p>
 
+          <form onSubmit={handleSubmit} className="space-y-6">
+
+            {/* Datos personales */}
             <div>
+              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
+                Datos personales
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-              <label
-                className="
-                  block
-                  text-sm
-                  font-medium
-                  text-gray-700
-                  mb-2
-                "
-              >
-                Usuario
-              </label>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Nombre <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="first_name"
+                    value={form.first_name}
+                    onChange={handleChange}
+                    placeholder="Juan"
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
+                      errors.first_name ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                    }`}
+                  />
+                  {errors.first_name && <p className="text-red-500 text-xs mt-1">{errors.first_name}</p>}
+                </div>
 
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                placeholder="Ingresa tu usuario"
-                required
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Apellido <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="last_name"
+                    value={form.last_name}
+                    onChange={handleChange}
+                    placeholder="Pérez"
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
+                      errors.last_name ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                    }`}
+                  />
+                  {errors.last_name && <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>}
+                </div>
 
-                className="
-                  w-full
-                  border
-                  border-gray-200
-                  rounded-xl
-                  px-4
-                  py-3
-                  text-gray-700
-                  placeholder-gray-300
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-cyan-500
-                  transition
-                "
-              />
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Nombre de usuario <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    value={form.username}
+                    onChange={handleChange}
+                    placeholder="juanperez"
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
+                      errors.username ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                    }`}
+                  />
+                  {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
+                </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Documento <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="document"
+                    value={form.document}
+                    onChange={handleChange}
+                    placeholder="123456789"
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
+                      errors.document ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                    }`}
+                  />
+                  {errors.document && <p className="text-red-500 text-xs mt-1">{errors.document}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Teléfono
+                  </label>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                    placeholder="300 000 0000"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    EPS <span className="text-red-400">*</span>
+                  </label>
+                  <select
+                    name="eps"
+                    value={form.eps}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
+                      errors.eps ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                    }`}
+                  >
+                    <option value="">Selecciona tu EPS</option>
+                    {EPS_LIST.map((eps) => (
+                      <option key={eps} value={eps}>{eps}</option>
+                    ))}
+                  </select>
+                  {errors.eps && <p className="text-red-500 text-xs mt-1">{errors.eps}</p>}
+                </div>
+
+              </div>
             </div>
 
-            {/* ================================= */}
-            {/* INPUT EMAIL */}
-            {/* ================================= */}
-
+            {/* Datos de acceso */}
             <div>
+              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
+                Datos de acceso
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-              <label
-                className="
-                  block
-                  text-sm
-                  font-medium
-                  text-gray-700
-                  mb-2
-                "
-              >
-                Correo electrónico
-              </label>
+                <div className="sm:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Correo electrónico <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    placeholder="juan@email.com"
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
+                      errors.email ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                    }`}
+                  />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                </div>
 
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="correo@ejemplo.com"
-                required
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Contraseña <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={form.password}
+                    onChange={handleChange}
+                    placeholder="Mínimo 8 caracteres"
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
+                      errors.password ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                    }`}
+                  />
+                  {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                </div>
 
-                className="
-                  w-full
-                  border
-                  border-gray-200
-                  rounded-xl
-                  px-4
-                  py-3
-                  text-gray-700
-                  placeholder-gray-300
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-cyan-500
-                  transition
-                "
-              />
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Confirmar contraseña <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="password"
+                    name="confirm_password"
+                    value={form.confirm_password}
+                    onChange={handleChange}
+                    placeholder="Repite la contraseña"
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
+                      errors.confirm_password ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                    }`}
+                  />
+                  {errors.confirm_password && <p className="text-red-500 text-xs mt-1">{errors.confirm_password}</p>}
+                </div>
 
+              </div>
             </div>
 
-            {/* ================================= */}
-            {/* INPUT PASSWORD */}
-            {/* ================================= */}
-
-            <div>
-
-              <label
-                className="
-                  block
-                  text-sm
-                  font-medium
-                  text-gray-700
-                  mb-2
-                "
-              >
-                Contraseña
-              </label>
-
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Ingresa tu contraseña"
-                required
-
-                className="
-                  w-full
-                  border
-                  border-gray-200
-                  rounded-xl
-                  px-4
-                  py-3
-                  text-gray-700
-                  placeholder-gray-300
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-cyan-500
-                  transition
-                "
-              />
-
-            </div>
-
-            {/* ================================= */}
-            {/* INPUT DOCUMENTO */}
-            {/* ================================= */}
-
-            <div>
-
-              <label
-                className="
-                  block
-                  text-sm
-                  font-medium
-                  text-gray-700
-                  mb-2
-                "
-              >
-                Documento de identidad
-              </label>
-
-              <input
-                type="text"
-                name="document_number"
-                value={formData.document_number}
-                onChange={handleChange}
-                placeholder="Número de documento"
-                required
-
-                className="
-                  w-full
-                  border
-                  border-gray-200
-                  rounded-xl
-                  px-4
-                  py-3
-                  text-gray-700
-                  placeholder-gray-300
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-cyan-500
-                  transition
-                "
-              />
-
-            </div>
-
-            {/* ================================= */}
-            {/* SELECT ROL */}
-            {/* ================================= */}
-
-            <div>
-
-              <label
-                className="
-                  block
-                  text-sm
-                  font-medium
-                  text-gray-700
-                  mb-2
-                "
-              >
-                Rol
-              </label>
-
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-
-                className="
-                  w-full
-                  border
-                  border-gray-200
-                  rounded-xl
-                  px-4
-                  py-3
-                  text-gray-700
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-cyan-500
-                  transition
-                "
-              >
-
-                <option value="patient">
-                  Paciente
-                </option>
-
-                <option value="doctor">
-                  Doctor
-                </option>
-
-              </select>
-
-            </div>
-
-            {/* ================================= */}
-            {/* INPUT EPS */}
-            {/* ================================= */}
-
-            <div>
-
-              <label
-                className="
-                  block
-                  text-sm
-                  font-medium
-                  text-gray-700
-                  mb-2
-                "
-              >
-                EPS
-
-                <span
-                  className="
-                    text-gray-400
-                    text-xs
-                    ml-1
-                  "
-                >
-                  (opcional)
-                </span>
-
-              </label>
-
-              <input
-                type="text"
-                name="eps"
-                value={formData.eps}
-                onChange={handleChange}
-                placeholder="Nombre de tu EPS"
-
-                className="
-                  w-full
-                  border
-                  border-gray-200
-                  rounded-xl
-                  px-4
-                  py-3
-                  text-gray-700
-                  placeholder-gray-300
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-cyan-500
-                  transition
-                "
-              />
-
-            </div>
-
-            {/* ================================= */}
-            {/* INPUT TELÉFONO */}
-            {/* ================================= */}
-
-            <div>
-
-              <label
-                className="
-                  block
-                  text-sm
-                  font-medium
-                  text-gray-700
-                  mb-2
-                "
-              >
-                Teléfono
-
-                <span
-                  className="
-                    text-gray-400
-                    text-xs
-                    ml-1
-                  "
-                >
-                  (opcional)
-                </span>
-
-              </label>
-
-              <input
-                type="text"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Número de teléfono"
-
-                className="
-                  w-full
-                  border
-                  border-gray-200
-                  rounded-xl
-                  px-4
-                  py-3
-                  text-gray-700
-                  placeholder-gray-300
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-cyan-500
-                  transition
-                "
-              />
-
-            </div>
-
-            {/* ================================= */}
-            {/* MENSAJE DE ERROR */}
-            {/* ================================= */}
-
-            {
-              error && (
-
-                <p className="text-red-500 text-sm text-center">
-                  {error}
-                </p>
-
-              )
-            }
-
-            {/* ================================= */}
-            {/* BOTÓN REGISTRO */}
-            {/* ================================= */}
+            {/* Rol fijo como paciente */}
+            <input type="hidden" name="role" value="patient" />
 
             <button
               type="submit"
               disabled={loading}
-
-              className="
-                w-full
-                bg-cyan-600
-                hover:bg-cyan-700
-                text-white
-                font-semibold
-                py-3
-                rounded-xl
-                transition
-                duration-200
-                disabled:opacity-50
-                shadow-md
-              "
+              className="w-full bg-teal-600 hover:bg-teal-700 disabled:bg-teal-400 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 flex items-center justify-center gap-2"
             >
-
-              {
-                loading
-                  ? 'Creando cuenta...'
-                  : 'Crear cuenta'
-              }
-
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Registrando...
+                </>
+              ) : (
+                'Crear cuenta como paciente'
+              )}
             </button>
-
           </form>
 
-          {/* ================================= */}
-          {/* LINK LOGIN */}
-          {/* ================================= */}
-
-          <p
-            className="
-              text-center
-              text-gray-500
-              text-sm
-              mt-8
-            "
-          >
-
-            ¿Ya tienes cuenta?
-
-            <span
-              onClick={() => navigate('/login')}
-
-              className="
-                text-cyan-700
-                font-medium
-                cursor-pointer
-                hover:underline
-                ml-1
-              "
-            >
-              Inicia sesión aquí
-            </span>
-
-          </p>
-
         </div>
-
       </div>
-
     </div>
   )
 }
