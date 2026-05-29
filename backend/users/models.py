@@ -32,3 +32,15 @@ class User(AbstractUser):
         blank=True,
         null=True
     )
+
+    # HU-10: Especialidad asignada (solo para médicos)
+    specialty = models.ForeignKey(
+        'specialties.Specialty',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='doctors'
+    )
+
+    def __str__(self):
+        return f"{self.username} ({self.get_role_display()})"
