@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { register } from '../api/auth'
 import registerImagen from '../assets/registerimagen.jpg'
+import logoSaludAgenda from '../assets/Logo Salud Agenda X.png'
 
 const EPS_LIST = [
   'Sura', 'Sanitas', 'Nueva EPS', 'Compensar', 'Coosalud',
@@ -10,6 +11,7 @@ const EPS_LIST = [
 ]
 
 const Register = () => {
+
   const navigate = useNavigate()
   const [form, setForm] = useState({
     username: '',
@@ -102,12 +104,17 @@ const Register = () => {
         <div className="absolute inset-0 bg-teal-900/65" />
 
         <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-              <span className="text-white text-xl font-bold">+</span>
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition">
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
+              <span className="text-white text-xl font-bold">
+                <img
+                  src={logoSaludAgenda}
+                  alt="Logo SaludAgendaX"
+                  className="w-16 h-16 object-contain"
+                /></span>
             </div>
             <span className="text-white text-2xl font-bold tracking-tight">SaludAgendaX</span>
-          </div>
+          </Link>
         </div>
 
         <div className="relative z-10">
@@ -143,7 +150,7 @@ const Register = () => {
           </button>
 
           <h1 className="text-2xl font-bold text-slate-800 mb-1">Crear cuenta</h1>
-          <p className="text-slate-500 mb-8">Completa tus datos para registrarte como paciente</p>
+          <p className="text-slate-500 mb-8">Completa tus datos para registrarte</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
 
@@ -164,9 +171,8 @@ const Register = () => {
                     value={form.first_name}
                     onChange={handleChange}
                     placeholder="Juan"
-                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
-                      errors.first_name ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
-                    }`}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${errors.first_name ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                      }`}
                   />
                   {errors.first_name && <p className="text-red-500 text-xs mt-1">{errors.first_name}</p>}
                 </div>
@@ -181,9 +187,8 @@ const Register = () => {
                     value={form.last_name}
                     onChange={handleChange}
                     placeholder="Pérez"
-                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
-                      errors.last_name ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
-                    }`}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${errors.last_name ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                      }`}
                   />
                   {errors.last_name && <p className="text-red-500 text-xs mt-1">{errors.last_name}</p>}
                 </div>
@@ -198,9 +203,8 @@ const Register = () => {
                     value={form.username}
                     onChange={handleChange}
                     placeholder="juanperez"
-                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
-                      errors.username ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
-                    }`}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${errors.username ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                      }`}
                   />
                   {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
                 </div>
@@ -215,9 +219,8 @@ const Register = () => {
                     value={form.document}
                     onChange={handleChange}
                     placeholder="123456789"
-                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
-                      errors.document ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
-                    }`}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${errors.document ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                      }`}
                   />
                   {errors.document && <p className="text-red-500 text-xs mt-1">{errors.document}</p>}
                 </div>
@@ -244,9 +247,8 @@ const Register = () => {
                     name="eps"
                     value={form.eps}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
-                      errors.eps ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
-                    }`}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${errors.eps ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                      }`}
                   >
                     <option value="">Selecciona tu EPS</option>
                     {EPS_LIST.map((eps) => (
@@ -254,6 +256,24 @@ const Register = () => {
                     ))}
                   </select>
                   {errors.eps && <p className="text-red-500 text-xs mt-1">{errors.eps}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                    Tipo de usuario <span className="text-red-400">*</span>
+                  </label>
+
+                  <select
+                    name="role"
+                    value={form.role}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800"
+                  >
+                    <option value="patient">Paciente</option>
+                    <option value="doctor">Médico</option>
+                    <option value="admin">Administrativo</option>
+                    <option value="superadmin">Superadministrador</option>
+                  </select>
                 </div>
 
               </div>
@@ -276,9 +296,8 @@ const Register = () => {
                     value={form.email}
                     onChange={handleChange}
                     placeholder="juan@email.com"
-                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
-                      errors.email ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
-                    }`}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${errors.email ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                      }`}
                   />
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
@@ -293,9 +312,8 @@ const Register = () => {
                     value={form.password}
                     onChange={handleChange}
                     placeholder="Mínimo 8 caracteres"
-                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
-                      errors.password ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
-                    }`}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${errors.password ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                      }`}
                   />
                   {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                 </div>
@@ -310,18 +328,14 @@ const Register = () => {
                     value={form.confirm_password}
                     onChange={handleChange}
                     placeholder="Repite la contraseña"
-                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${
-                      errors.confirm_password ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
-                    }`}
+                    className={`w-full px-4 py-2.5 rounded-xl border text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${errors.confirm_password ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white'
+                      }`}
                   />
                   {errors.confirm_password && <p className="text-red-500 text-xs mt-1">{errors.confirm_password}</p>}
                 </div>
 
               </div>
             </div>
-
-            {/* Rol fijo como paciente */}
-            <input type="hidden" name="role" value="patient" />
 
             <button
               type="submit"
@@ -334,7 +348,7 @@ const Register = () => {
                   Registrando...
                 </>
               ) : (
-                'Crear cuenta como paciente'
+                'Crear cuenta'
               )}
             </button>
           </form>

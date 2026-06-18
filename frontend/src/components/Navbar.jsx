@@ -1,7 +1,8 @@
 // src/components/Navbar.jsx
 // Barra de navegación compartida para todos los dashboards
 
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import logoSaludAgenda from '../assets/Logo Salud Agenda X w.png'
 
 const ROLE_LABELS = {
   patient: 'Paciente',
@@ -14,19 +15,35 @@ const Navbar = ({ role, username }) => {
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    localStorage.clear()
-    navigate('/login')
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
+    localStorage.removeItem('role')
+    localStorage.removeItem('username')
+
+    navigate('/', { replace: true })
+
+    window.location.reload()
   }
 
   return (
-    <header className="bg-white border-b border-slate-100 sticky top-0 z-30">
+    <header className="bg-white border-b border-slate-100 sticky top-0 z-30" >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">+</span>
+        <Link
+          to="/"
+          className="flex items-center gap-3 hover:opacity-80 transition"
+        >
+          <div className="w-10 h-10 bg-teal-600 rounded-lg flex items-center justify-center">
+            <img
+              src={logoSaludAgenda}
+              alt="Logo SaludAgendaX"
+              className="w-16 h-16 object-contain"
+            />
           </div>
-          <span className="text-slate-800 font-bold text-lg">SaludAgendaX</span>
-        </div>
+
+          <span className="text-slate-800 font-bold text-lg">
+            SaludAgendaX
+          </span>
+        </Link>
 
         <div className="flex items-center gap-4">
           <div className="text-right hidden sm:block">
