@@ -91,6 +91,7 @@ class MyAppointmentSerializer(serializers.ModelSerializer):
 
         fields = (
             'id',
+            'doctor',
             'doctor_name',
             'specialty_name',
             'appointment_date',

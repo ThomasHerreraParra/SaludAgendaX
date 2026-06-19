@@ -17,7 +17,7 @@ const MENU_ITEMS = [
   {
     icon: '🗂️',
     title: 'Mis citas',
-    desc: 'Consulta y gestiona tus citas activas y pasadas',
+    desc: 'Consulta y gestiona tus citas activas',
     color: 'bg-blue-50 border-blue-100',
     iconBg: 'bg-blue-100',
     path: '/appointments/my'
