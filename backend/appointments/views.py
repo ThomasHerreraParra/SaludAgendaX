@@ -12,7 +12,8 @@ from .models import Appointment, DoctorAvailability
 from .serializers import (
     AppointmentSerializer,
     DoctorAvailabilitySerializer,
-    CreateAvailabilitySerializer
+    CreateAvailabilitySerializer,
+    MyAppointmentSerializer
 )
 
 
@@ -111,4 +112,18 @@ class IsDoctor(BasePermission):
         return (
             request.user.is_authenticated
             and request.user.role == 'doctor'
+        )
+
+class MyAppointmentsView(generics.ListAPIView):
+
+    serializer_class = MyAppointmentSerializer
+    permission_classes = [IsPatient]
+
+    def get_queryset(self):
+
+        return Appointment.objects.filter(
+            patient=self.request.user
+        ).order_by(
+            '-appointment_date',
+            '-appointment_time'
         )

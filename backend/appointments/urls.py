@@ -6,6 +6,7 @@ from .views import (
     DoctorsBySpecialtyView,
     CreateAvailabilityView,
     MyAvailabilityView,
+    MyAppointmentsView,
 )
 
 
@@ -39,5 +40,12 @@ urlpatterns = [
     path(
         'my-availability/',
         MyAvailabilityView.as_view()
+    ),
+
+    #Ver las citas del paciente identificado (o sea mis citas)
+    path(
+        'my/',
+        MyAppointmentsView.as_view(),
+        name='my-appointments'
     ),
 ]

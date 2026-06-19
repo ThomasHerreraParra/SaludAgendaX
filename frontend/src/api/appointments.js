@@ -28,3 +28,6 @@ date
 }
 }
 )
+
+export const getMyAppointments = () =>
+  api.get('/appointments/my/')

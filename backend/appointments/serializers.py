@@ -73,3 +73,27 @@ class CreateAvailabilitySerializer(serializers.ModelSerializer):
             )
 
         return value
+
+class MyAppointmentSerializer(serializers.ModelSerializer):
+
+    doctor_name = serializers.CharField(
+        source='doctor.username'
+    )
+
+    specialty_name = serializers.CharField(
+        source='specialty.name'
+    )
+
+
+    class Meta:
+
+        model = Appointment
+
+        fields = (
+            'id',
+            'doctor_name',
+            'specialty_name',
+            'appointment_date',
+            'appointment_time',
+            'status',
+        )
