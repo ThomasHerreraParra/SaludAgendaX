@@ -4,6 +4,7 @@ from .views import (
     CustomLoginView,
     MeView,
     UserListView,
+    DoctorListBySpecialtyView,
     DeactivatePatientView,
     ReactivatePatientView,
     DeactivateDoctorView,
@@ -28,4 +29,11 @@ urlpatterns = [
 
     # HU-10: Asignar especialidad
     path('users/doctors/<int:pk>/assign-specialty/', AssignSpecialtyView.as_view(), name='assign-specialty'),
+
+    #HU-4 SENORES ESTOY CANSADO DE ESTA MONDA ME DA ERROR POR TO LADO >|<
+    path(
+    'doctors/',
+    DoctorListBySpecialtyView.as_view(),
+    name='doctor-list'
+),
 ]

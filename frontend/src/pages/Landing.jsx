@@ -304,7 +304,7 @@ const Landing = () => {
                 <div className="max-w-7xl mx-auto px-6 text-center">
 
                     <p className="text-slate-400">
-                        © 2026 SaludAgendaX · Proyecto académico · Universidad del Valle
+                        © 2026 SaludAgendaX · Yoel Montoya · Daniel Micolta · Andres Muñoz · Thomas Herrera · Brandon · Desarrollo de Software I
                     </p>
 
                 </div>

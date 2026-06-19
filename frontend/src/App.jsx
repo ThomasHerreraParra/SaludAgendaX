@@ -10,6 +10,7 @@ import DashboardDoctor from './pages/DashboardDoctor'
 import DashboardAdmin from './pages/DashboardAdmin'
 import Landing from './pages/Landing'
 import DashboardSuperAdmin from './pages/DashboardSuperAdmin'
+import RequestAppointment from './pages/RequestAppointment'
 
 // Redirige al dashboard correspondiente si ya hay sesión
 const RootRedirect = () => {
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="/dashboard/superadmin" element={<DashboardSuperAdmin />} />
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/appointments/request" element={<RequestAppointment />}/>
       </Routes>
     </BrowserRouter>
   )
