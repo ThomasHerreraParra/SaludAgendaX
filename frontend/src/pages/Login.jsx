@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { login } from '../api/auth'
 import loginBanner from '../assets/loginbannerderecho.jpg'
+import logoSaludAgenda from '../assets/Logo Salud Agenda X.png'
 
 const ROLE_ROUTES = {
   patient: '/dashboard/patient',
@@ -37,7 +38,7 @@ const Login = () => {
     } catch (err) {
       setError(
         err.response?.data?.detail ||
-          'Credenciales incorrectas. Verifica tu usuario y contraseña.'
+        'Credenciales incorrectas. Verifica tu usuario y contraseña.'
       )
     } finally {
       setLoading(false)
@@ -62,12 +63,20 @@ const Login = () => {
 
         {/* Logo */}
         <div className="relative z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-              <span className="text-white text-xl font-bold">+</span>
+          <Link
+            to="/"
+            className="flex items-center gap-3 hover:opacity-80 transition"
+          >
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
+              <span className="text-white text-xl font-bold">
+                <img
+                  src={logoSaludAgenda}
+                  alt="Logo SaludAgendaX"
+                  className="w-16 h-16 object-contain"
+                /></span>
             </div>
             <span className="text-white text-2xl font-bold tracking-tight">SaludAgendaX</span>
-          </div>
+          </Link>
         </div>
 
         {/* Texto central */}
@@ -100,12 +109,16 @@ const Login = () => {
         <div className="w-full max-w-md">
 
           {/* Logo móvil */}
-          <div className="flex items-center gap-2 mb-10 lg:hidden">
-            <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">+</span>
+          <Link to="/" className="flex items-center gap-2 mb-10 lg:hidden hover:opacity-80 transition">
+            <div className="w-14 h-14 bg-white-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold"><img
+                src={logoSaludAgenda}
+                alt="Logo SaludAgendaX"
+                className="w-14 h-14 object-contain"
+              /></span>
             </div>
             <span className="text-slate-800 text-xl font-bold">SaludAgendaX</span>
-          </div>
+          </Link>
 
           <h1 className="text-3xl font-bold text-slate-800 mb-2">Bienvenido de nuevo</h1>
           <p className="text-slate-500 mb-8">Ingresa tus credenciales para continuar</p>

@@ -12,15 +12,15 @@ const MENU_ITEMS = [
     desc: 'Agenda una nueva cita con el especialista que necesitas',
     color: 'bg-teal-50 border-teal-100',
     iconBg: 'bg-teal-100',
-    coming: true,
+    path: '/appointments/request'
   },
   {
     icon: '🗂️',
     title: 'Mis citas',
-    desc: 'Consulta y gestiona tus citas activas y pasadas',
+    desc: 'Consulta y gestiona tus citas activas',
     color: 'bg-blue-50 border-blue-100',
     iconBg: 'bg-blue-100',
-    coming: true,
+    path: '/appointments/my'
   },
   {
     icon: '📋',
@@ -84,10 +84,16 @@ const DashboardPatient = () => {
           Acciones disponibles
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {MENU_ITEMS.map(({ icon, title, desc, color, iconBg, coming }) => (
+          {MENU_ITEMS.map(({ icon, title, desc, color, iconBg, coming, path }) => (
             <div
               key={title}
-              className={`rounded-2xl border p-6 cursor-pointer hover:shadow-md transition-all duration-200 ${color} relative`}
+              onClick={() => {
+                if (path) {
+                  navigate(path)
+                }
+              }}
+              className={`rounded-2xl border p-6 transition-all duration-200 ${color} relative ${path ? 'cursor-pointer hover:shadow-md' : 'opacity-80'
+                }`}
             >
               {coming && (
                 <span className="absolute top-3 right-3 text-xs bg-slate-200 text-slate-500 px-2 py-0.5 rounded-full">

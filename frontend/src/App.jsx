@@ -8,7 +8,11 @@ import Register from './pages/Register'
 import DashboardPatient from './pages/DashboardPatient'
 import DashboardDoctor from './pages/DashboardDoctor'
 import DashboardAdmin from './pages/DashboardAdmin'
+import Landing from './pages/Landing'
 import DashboardSuperAdmin from './pages/DashboardSuperAdmin'
+import RequestAppointment from './pages/RequestAppointment'
+import MyAppointments from './pages/MyAppointments'
+import EditAppointment from './pages/EditAppointment'
 
 // Redirige al dashboard correspondiente si ya hay sesión
 const RootRedirect = () => {
@@ -22,7 +26,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<RootRedirect />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard/patient" element={<DashboardPatient />} />
@@ -31,6 +35,9 @@ const App = () => {
         <Route path="/dashboard/superadmin" element={<DashboardSuperAdmin />} />
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/appointments/request" element={<RequestAppointment />}/>
+        <Route path="/appointments/my" element={<MyAppointments />}/>
+        <Route path="/appointments/edit" element={<EditAppointment/>}/>
       </Routes>
     </BrowserRouter>
   )

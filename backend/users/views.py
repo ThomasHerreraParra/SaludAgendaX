@@ -47,6 +47,25 @@ class UserListView(generics.ListAPIView):
             qs = qs.filter(is_active=active.lower() == 'true')
         return qs
 
+class DoctorListBySpecialtyView(generics.ListAPIView):
+    """
+    HU-4: Obtener médicos por especialidad para solicitud de citas
+    """
+    serializer_class = UserSummarySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = User.objects.filter(
+            role='doctor',
+            is_active=True
+        )
+
+        specialty = self.request.query_params.get('specialty')
+
+        if specialty:
+            qs = qs.filter(specialty_id=specialty)
+
+        return qs
 
 class DeactivatePatientView(APIView):
     """HU-11: Desactivar paciente (soft delete)"""
@@ -111,6 +130,11 @@ class AssignSpecialtyView(APIView):
         specialty = Specialty.objects.get(pk=serializer.validated_data['specialty_id'])
         doctor.specialty = specialty
         doctor.save()
+
+
+        from appointments.utils import generate_doctor_schedule
+
+        generate_doctor_schedule(doctor)
 
         return Response({
             'detail': f'Especialidad "{specialty.name}" asignada al médico {doctor.username}.',
