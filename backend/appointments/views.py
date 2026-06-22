@@ -19,7 +19,7 @@ from .serializers import (
     DoctorAvailabilitySerializer,
     CreateAvailabilitySerializer,
     MyAppointmentSerializer
-) 
+)
 
 
 class AppointmentCreateView(generics.CreateAPIView):
@@ -67,6 +67,17 @@ class DoctorAvailabilityListView(generics.ListAPIView):
 
 
         return queryset
+
+class AppointmentHistoryView(generics.ListAPIView):
+
+    serializer_class = MyAppointmentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+
+        return Appointment.objects.filter(
+            patient=self.request.user
+        ).order_by('-appointment_date')
 
 
 class DoctorsBySpecialtyView(generics.ListAPIView):

@@ -10,6 +10,7 @@ from .views import (
     UpdateAppointmentView,
     CancelAppointmentView,  
     RescheduleAppointmentView,
+    AppointmentHistoryView
 )
 
 
@@ -70,5 +71,11 @@ urlpatterns = [
         'appointments/<int:pk>/cancel/',
         CancelAppointmentView.as_view(),
         name='cancel-appointment'
+    ),
+
+    path(
+        'history/',
+        AppointmentHistoryView.as_view(),
+        name='appointment-history'
     ),
 ]

@@ -41,3 +41,6 @@ export const cancelAppointment = (appointmentId) =>
     api.patch(
         `/appointments/appointments/${appointmentId}/cancel/`
     )
+
+export const getAppointmentHistory = () =>
+  api.get('/appointments/history/')

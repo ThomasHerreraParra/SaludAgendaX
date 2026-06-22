@@ -5,9 +5,15 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import User
-from .serializers import RegisterSerializer, UserSummarySerializer, AssignSpecialtySerializer
 from .token import CustomTokenObtainPairSerializer
 from .permissions import IsAdminOrSuperAdmin
+
+from .serializers import (
+    RegisterSerializer,
+    UserSummarySerializer,
+    AssignSpecialtySerializer,
+    UpdateProfileSerializer
+)
 
 
 class RegisterView(generics.CreateAPIView):
@@ -28,6 +34,17 @@ class MeView(APIView):
     def get(self, request):
         serializer = UserSummarySerializer(request.user)
         return Response(serializer.data)
+
+class UpdateProfileView(
+    generics.UpdateAPIView
+):
+
+    serializer_class = UpdateProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+
+        return self.request.user
 
 
 # ─── Vistas Administrativas (HU-11, HU-12) ───────────────────────────────────

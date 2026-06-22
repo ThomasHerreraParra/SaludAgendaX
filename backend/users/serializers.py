@@ -84,6 +84,35 @@ class UserSummarySerializer(serializers.ModelSerializer):
     def get_full_name(self, obj):
         return f"{obj.first_name} {obj.last_name}".strip() or obj.username
 
+class UpdateProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+
+        model = User
+
+        fields = (
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+        )
+
+    def validate_email(self, value):
+
+        user = self.instance
+
+        if User.objects.filter(
+            email=value
+        ).exclude(
+            id=user.id
+        ).exists():
+
+            raise serializers.ValidationError(
+                "El correo ya está registrado."
+            )
+
+        return value
+
 
 class AssignSpecialtySerializer(serializers.Serializer):
     """Para asignar especialidad a un médico (HU-10)"""

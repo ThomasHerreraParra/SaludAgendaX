@@ -9,6 +9,7 @@ from .views import (
     ReactivatePatientView,
     DeactivateDoctorView,
     AssignSpecialtyView,
+    UpdateProfileView,
 )
 
 urlpatterns = [
@@ -31,9 +32,9 @@ urlpatterns = [
     path('users/doctors/<int:pk>/assign-specialty/', AssignSpecialtyView.as_view(), name='assign-specialty'),
 
     #HU-4 SENORES ESTOY CANSADO DE ESTA MONDA ME DA ERROR POR TO LADO >|<
-    path(
-    'doctors/',
-    DoctorListBySpecialtyView.as_view(),
-    name='doctor-list'
-),
+    path('doctors/', DoctorListBySpecialtyView.as_view(), name='doctor-list'),
+
+    #HU-3
+    path('me/update/', UpdateProfileView.as_view(), name='update-profile'),
+
 ]

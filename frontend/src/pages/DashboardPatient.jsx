@@ -1,9 +1,15 @@
 // src/pages/DashboardPatient.jsx
 // HU-19: Panel del paciente con acceso a recursos disponibles para su rol
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import {
+  getMyAppointments,
+  getAppointmentHistory
+} from '../api/appointments'
+import { getMe } from '../api/users'
+
 
 const MENU_ITEMS = [
   {
@@ -36,7 +42,7 @@ const MENU_ITEMS = [
     desc: 'Actualiza tus datos de contacto e información personal',
     color: 'bg-orange-50 border-orange-100',
     iconBg: 'bg-orange-100',
-    coming: true,
+    path: '/profile'
   },
 ]
 
@@ -45,11 +51,88 @@ const DashboardPatient = () => {
   const role = localStorage.getItem('role')
   const username = localStorage.getItem('username')
 
+  const [stats, setStats] = useState({
+    pending: 0,
+    completed: 0,
+    nextAppointment: '—'
+  })
+
+  const [userData, setUserData] = useState(null)
+
   useEffect(() => {
+
     const token = localStorage.getItem('access_token')
-    if (!token) navigate('/login')
-    if (role && role !== 'patient') navigate(`/dashboard/${role}`)
+
+    if (!token) {
+      navigate('/login')
+      return
+    }
+
+    if (role && role !== 'patient') {
+      navigate(`/dashboard/${role}`)
+      return
+    }
+
+    loadStats()
+
   }, [])
+
+  const loadStats = async () => {
+
+    try {
+
+      const activeRes = await getMyAppointments()
+
+      const historyRes = await getAppointmentHistory()
+
+      const userRes = await getMe()
+
+      setUserData(userRes.data)
+
+      const pending = activeRes.data.filter(
+        appointment => appointment.status === 'pending'
+      ).length
+
+      const completed = historyRes.data.filter(
+        appointment => appointment.status === 'completed'
+      ).length
+
+
+      let nextAppointment = '—'
+
+
+      if (activeRes.data.length > 0) {
+
+        const sortedAppointments = [...activeRes.data].sort(
+          (a, b) =>
+            new Date(
+              `${a.appointment_date}T${a.appointment_time}`
+            ) -
+            new Date(
+              `${b.appointment_date}T${b.appointment_time}`
+            )
+        )
+
+        nextAppointment =
+          sortedAppointments[0].appointment_date
+
+        console.log("MIS CITAS", activeRes.data)
+
+      }
+
+      setStats({
+        pending,
+        completed,
+        nextAppointment
+      })
+
+    } catch (error) {
+
+      console.log(error)
+
+    }
+
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -67,10 +150,26 @@ const DashboardPatient = () => {
         {/* Resumen rápido */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           {[
-            { label: 'Citas pendientes', value: '—', color: 'text-teal-600' },
-            { label: 'Citas completadas', value: '—', color: 'text-blue-600' },
-            { label: 'Citas disponibles (EPS)', value: '—', color: 'text-purple-600' },
-            { label: 'Próxima cita', value: '—', color: 'text-orange-600' },
+            {
+              label: 'Citas pendientes',
+              value: stats.pending,
+              color: 'text-teal-600'
+            },
+            {
+              label: 'Citas completadas',
+              value: stats.completed,
+              color: 'text-blue-600'
+            },
+            {
+              label: 'EPS',
+              value: userData?.eps || '—',
+              color: 'text-purple-600'
+            },
+            {
+              label: 'Próxima cita',
+              value: stats.nextAppointment,
+              color: 'text-orange-600'
+            },
           ].map(({ label, value, color }) => (
             <div key={label} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
               <p className="text-xs text-slate-400 mb-1">{label}</p>
