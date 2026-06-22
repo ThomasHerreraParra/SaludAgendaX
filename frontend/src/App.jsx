@@ -13,6 +13,8 @@ import DashboardSuperAdmin from './pages/DashboardSuperAdmin'
 import RequestAppointment from './pages/RequestAppointment'
 import MyAppointments from './pages/MyAppointments'
 import EditAppointment from './pages/EditAppointment'
+import AppointmentHistory from './pages/AppointmentHistory'
+import MyProfile from './pages/MyProfile'
 
 // Redirige al dashboard correspondiente si ya hay sesión
 const RootRedirect = () => {
@@ -38,6 +40,8 @@ const App = () => {
         <Route path="/appointments/request" element={<RequestAppointment />}/>
         <Route path="/appointments/my" element={<MyAppointments />}/>
         <Route path="/appointments/edit" element={<EditAppointment/>}/>
+        <Route path="/appointments/history" element={<AppointmentHistory />}/>
+        <Route path="/profile" element={<MyProfile />}/>
       </Routes>
     </BrowserRouter>
   )
