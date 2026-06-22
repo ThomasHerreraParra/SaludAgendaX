@@ -28,7 +28,7 @@ const MENU_ITEMS = [
     desc: 'Revisa el historial completo de tus consultas médicas',
     color: 'bg-purple-50 border-purple-100',
     iconBg: 'bg-purple-100',
-    coming: true,
+    path: '/appointments/history'
   },
   {
     icon: '👤',
