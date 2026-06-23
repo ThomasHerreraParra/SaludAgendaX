@@ -97,13 +97,17 @@ const DashboardPatient = () => {
         appointment => appointment.status === 'completed'
       ).length
 
+      const pendingAppointments = activeRes.data.filter(
+        appointment => appointment.status === 'pending'
+      )
 
       let nextAppointment = '—'
 
+      
 
-      if (activeRes.data.length > 0) {
+      if (pendingAppointments.length > 0) {
 
-        const sortedAppointments = [...activeRes.data].sort(
+        const sortedAppointments = [...pendingAppointments].sort(
           (a, b) =>
             new Date(
               `${a.appointment_date}T${a.appointment_time}`

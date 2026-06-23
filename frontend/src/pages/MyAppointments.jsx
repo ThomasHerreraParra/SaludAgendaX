@@ -29,7 +29,7 @@ const MyAppointments = () => {
 
     const [availableTimes, setAvailableTimes] = useState([])
 
-    const [message, setMessage] = useState('')
+    const [toast, setToast] = useState(null)
 
 
 
@@ -95,6 +95,16 @@ const MyAppointments = () => {
 
     const [newTime, setNewTime] = useState('')
 
+    const showToast = (msg, type = 'success') => {
+
+        setToast({ msg, type })
+
+        setTimeout(() => {
+            setToast(null)
+        }, 3000)
+
+    }
+
     const handleDateChange = async (e) => {
 
         const date = e.target.value
@@ -133,7 +143,7 @@ const MyAppointments = () => {
             )
 
 
-            setMessage(
+            showToast(
                 "Cita reprogramada correctamente"
             )
 
@@ -147,8 +157,9 @@ const MyAppointments = () => {
 
             console.log(error.response?.data)
 
-            setMessage(
-                "Error al reprogramar cita"
+            showToast(
+                "Error al reprogramar cita",
+                "error"
             )
 
         }
@@ -174,7 +185,7 @@ const MyAppointments = () => {
             )
 
 
-            setMessage(
+            showToast(
                 "Cita cancelada correctamente"
             )
 
@@ -187,8 +198,9 @@ const MyAppointments = () => {
             console.log(error.response?.data)
 
 
-            setMessage(
-                "Error al cancelar la cita"
+            showToast(
+                "Error al cancelar la cita",
+                "error"
             )
 
         }
@@ -206,6 +218,20 @@ const MyAppointments = () => {
 
             {/*boton de volver atras*/}
             <div><br></br></div>
+            {
+                toast && (
+
+                    <div
+                        className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium transition-all ${toast.type === 'error'
+                                ? 'bg-red-600 text-white'
+                                : 'bg-teal-600 text-white'
+                            }`}
+                    >
+                        {toast.msg}
+                    </div>
+
+                )
+            }
             <button
                 onClick={() => navigate('/dashboard/patient')}
                 className="mb-6 text-teal-600 hover:text-teal-800 font-medium flex items-center gap-2 cursor-pointer"
@@ -220,15 +246,6 @@ const MyAppointments = () => {
                     Mis citas
                 </h1>
 
-                {
-                    message && (
-
-                        <p className="mb-4 text-teal-600 font-medium">
-                            {message}
-                        </p>
-
-                    )
-                }
 
 
                 {

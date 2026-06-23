@@ -23,7 +23,17 @@ const MyProfile = () => {
         phone: ''
     })
 
-    const [message, setMessage] = useState('')
+    const [toast, setToast] = useState(null)
+
+    const showToast = (msg, type = 'success') => {
+
+        setToast({ msg, type })
+
+        setTimeout(() => {
+            setToast(null)
+        }, 3000)
+
+    }
 
     useEffect(() => {
 
@@ -71,8 +81,8 @@ const MyProfile = () => {
 
             await updateProfile(form)
 
-            setMessage(
-                'Perfil actualizado correctamente'
+            showToast(
+                "Perfil actualizado correctamente"
             )
 
             loadProfile()
@@ -81,8 +91,10 @@ const MyProfile = () => {
 
             console.log(error)
 
-            setMessage(
-                'Error al actualizar perfil'
+            showToast(
+                "Error al actualizar perfil",
+                "error"
+
             )
 
         }
@@ -97,6 +109,21 @@ const MyProfile = () => {
                 role={role}
                 username={username}
             />
+
+            {
+                toast && (
+
+                    <div
+                        className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium transition-all ${toast.type === 'error'
+                                ? 'bg-red-600 text-white'
+                                : 'bg-teal-600 text-white'
+                            }`}
+                    >
+                        {toast.msg}
+                    </div>
+
+                )
+            }
 
             <button
                 onClick={() => navigate('/dashboard/patient')}
@@ -114,93 +141,101 @@ const MyProfile = () => {
                 {
                     profile && (
 
-                        <div className="bg-white rounded-2xl shadow p-6 border mb-6">
+                        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 mb-8">
 
-                            <p>
-                                <strong>Usuario:</strong> {profile.username}
-                            </p>
+                            <h2 className="text-lg font-semibold text-slate-800 mb-4">
+                                Información de la cuenta
+                            </h2>
 
-                            <p>
-                                <strong>Documento:</strong> {profile.document}
-                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                            <p>
-                                <strong>EPS:</strong> {profile.eps}
-                            </p>
+                                <div className="bg-slate-50 rounded-xl p-4">
+                                    <p className="text-xs text-slate-500">Usuario</p>
+                                    <p className="font-semibold">{profile.username}</p>
+                                </div>
 
-                            <p>
-                                <strong>Rol:</strong> {profile.role}
-                            </p>
+                                <div className="bg-slate-50 rounded-xl p-4">
+                                    <p className="text-xs text-slate-500">Documento</p>
+                                    <p className="font-semibold">{profile.document}</p>
+                                </div>
+
+                                <div className="bg-slate-50 rounded-xl p-4">
+                                    <p className="text-xs text-slate-500">EPS</p>
+                                    <p className="font-semibold">{profile.eps}</p>
+                                </div>
+
+                                <div className="bg-slate-50 rounded-xl p-4">
+                                    <p className="text-xs text-slate-500">Rol</p>
+                                    <p className="font-semibold">{profile.role}</p>
+                                </div>
+
+                            </div>
 
                         </div>
 
                     )
                 }
 
-                {
-                    message && (
-                        <p className="mb-4 text-teal-600 font-medium">
-                            {message}
-                        </p>
-                    )
-                }
 
                 <form
                     onSubmit={handleSubmit}
-                    className="bg-white rounded-2xl shadow p-6 border"
+                    className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8"
                 >
+                    <div>
+                        <h2 className="text-lg font-semibold text-slate-800 mb-4">Edita tu perfil</h2>
+                    </div>
 
                     <div className="mb-4">
-                        <label>Nombre</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Nombre</label>
 
                         <input
                             type="text"
                             name="first_name"
                             value={form.first_name}
                             onChange={handleChange}
-                            className="w-full border rounded-lg p-2 mt-1"
+                            className="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label>Apellido</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Apellido</label>
 
                         <input
                             type="text"
                             name="last_name"
                             value={form.last_name}
                             onChange={handleChange}
-                            className="w-full border rounded-lg p-2 mt-1"
+                            className="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label>Correo</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Correo</label>
 
                         <input
                             type="email"
                             name="email"
                             value={form.email}
                             onChange={handleChange}
-                            className="w-full border rounded-lg p-2 mt-1"
+                            className="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                         />
                     </div>
 
                     <div className="mb-6">
-                        <label>Teléfono</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Teléfono</label>
 
                         <input
                             type="text"
                             name="phone"
                             value={form.phone}
                             onChange={handleChange}
-                            className="w-full border rounded-lg p-2 mt-1"
+                            className="w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                         />
                     </div>
 
                     <button
                         type="submit"
-                        className="bg-teal-600 text-white px-5 py-2 rounded-lg hover:bg-teal-700 cursor-pointer"
+                        className="w-full bg-teal-600 text-white font-semibold py-3 rounded-xl hover:bg-teal-700 transition shadow-sm cursor-pointer"
                     >
                         Guardar cambios
                     </button>
