@@ -10,6 +10,7 @@ class Appointment(models.Model):
         ('approved', 'Aprobada'),
         ('completed', 'Completada'),
         ('cancelled', 'Cancelada'),
+        ('no_show', 'No asistió'),
     )
 
     patient = models.ForeignKey(

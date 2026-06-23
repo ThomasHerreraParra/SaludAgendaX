@@ -3,7 +3,6 @@ from rest_framework.permissions import IsAuthenticated
 
 from users.models import User
 from users.serializers import UserSummarySerializer
-from datetime import date
 
 from users.permissions import IsDoctor
 from users.permissions import IsPatient
@@ -12,13 +11,18 @@ from rest_framework.permissions import BasePermission
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from .utils import maintain_system
+from datetime import date, timedelta
 
 from .models import Appointment, DoctorAvailability
 from .serializers import (
     AppointmentSerializer,
     DoctorAvailabilitySerializer,
     CreateAvailabilitySerializer,
-    MyAppointmentSerializer
+    MyAppointmentSerializer,
+    DoctorAppointmentSerializer,
+    DoctorScheduleSerializer,
+    DoctorDashboardSerializer
 )
 
 
@@ -67,6 +71,26 @@ class DoctorAvailabilityListView(generics.ListAPIView):
 
 
         return queryset
+    
+    def get_queryset(self):
+
+        maintain_system()
+
+        doctor_id = self.kwargs['doctor_id']
+        selected_date = self.request.query_params.get('date')
+
+        queryset = DoctorAvailability.objects.filter(
+            doctor_id=doctor_id,
+            is_available=True,
+            date__gte=date.today()
+        )
+
+        if selected_date:
+            queryset = queryset.filter(
+                date=selected_date
+            )
+
+        return queryset
 
 class AppointmentHistoryView(generics.ListAPIView):
 
@@ -111,13 +135,25 @@ class MyAvailabilityView(
     generics.ListAPIView
 ):
 
-    serializer_class = DoctorAvailabilitySerializer
+    serializer_class = DoctorScheduleSerializer
     permission_classes = [IsDoctor]
 
     def get_queryset(self):
 
         return DoctorAvailability.objects.filter(
             doctor=self.request.user
+        ).order_by(
+            'date',
+            'time'
+        )
+
+    def get_queryset(self):
+
+        maintain_system()
+
+        return DoctorAvailability.objects.filter(
+            doctor=self.request.user,
+            date__gte=date.today()
         ).order_by(
             'date',
             'time'
@@ -372,3 +408,104 @@ class CancelAppointmentView(APIView):
                 "Cita cancelada correctamente"
             }
         ) 
+
+class DoctorAppointmentsView(
+    generics.ListAPIView
+):
+
+    serializer_class = DoctorAppointmentSerializer
+
+    permission_classes = [IsDoctor]
+
+    def get_queryset(self):
+
+        return Appointment.objects.filter(
+            doctor=self.request.user
+        ).order_by(
+            'appointment_date',
+            'appointment_time'
+        )
+
+    def get_queryset(self):
+
+        maintain_system()
+
+        return Appointment.objects.filter(
+            doctor=self.request.user
+        ).exclude(
+            status='cancelled'
+        ).order_by(
+            'appointment_date',
+            'appointment_time'
+        )
+
+class UpdateAppointmentStatusView(APIView):
+
+    permission_classes = [IsDoctor]
+
+    def patch(self, request, pk):
+
+        try:
+
+            appointment = Appointment.objects.get(
+                id=pk,
+                doctor=request.user
+            )
+
+        except Appointment.DoesNotExist:
+
+            return Response(
+                {"detail": "Cita no encontrada"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        new_status = request.data.get("status")
+
+        if new_status not in ["completed", "no_show"]:
+
+            return Response(
+                {"detail": "Estado inválido"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        appointment.status = new_status
+        appointment.save()
+
+        return Response(
+            {"detail": "Estado actualizado"}
+        )
+
+class DoctorDashboardView(APIView):
+
+    permission_classes = [IsDoctor]
+
+    def get(self, request):
+
+        today = date.today()
+
+        week_end = today + timedelta(days=7)
+
+        appointments_today = Appointment.objects.filter(
+            doctor=request.user,
+            appointment_date=today
+        ).exclude(
+            status='cancelled'
+        ).count()
+
+        appointments_week = Appointment.objects.filter(
+            doctor=request.user,
+            appointment_date__range=[today, week_end]
+        ).exclude(
+            status='cancelled'
+        ).count()
+
+        attended_patients = Appointment.objects.filter(
+            doctor=request.user,
+            status='completed'
+        ).count()
+
+        return Response({
+            "appointments_today": appointments_today,
+            "appointments_week": appointments_week,
+            "attended_patients": attended_patients
+        })

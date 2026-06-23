@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, date
-from .models import DoctorAvailability
+from .models import Appointment, DoctorAvailability
+from users.models import User
 
 
 def generate_doctor_schedule(doctor, days=30):
@@ -58,3 +59,42 @@ def generate_doctor_schedule(doctor, days=30):
             )
 
             current += timedelta(minutes=30)
+
+#AGENDA DINAMICA
+
+def clean_old_data():
+
+    # cancelar citas pendientes vencidas
+
+    Appointment.objects.filter(
+        appointment_date__lt=date.today(),
+        status='pending'
+    ).update(
+        status='cancelled'
+    )
+
+    # eliminar disponibilidades viejas
+
+    DoctorAvailability.objects.filter(
+        date__lt=date.today()
+    ).delete()
+
+def ensure_schedule_for_all_doctors():
+
+    doctors = User.objects.filter(
+        role='doctor',
+        is_active=True
+    )
+
+    for doctor in doctors:
+
+        generate_doctor_schedule(
+            doctor,
+            days=30
+        )
+
+def maintain_system():
+
+    clean_old_data()
+
+    ensure_schedule_for_all_doctors()
