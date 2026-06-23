@@ -44,3 +44,31 @@ export const cancelAppointment = (appointmentId) =>
 
 export const getAppointmentHistory = () =>
   api.get('/appointments/history/')
+
+export const getDoctorAppointments = () => {
+    return api.get(
+        '/appointments/doctor/appointments/'
+    )
+}
+
+export const getMyAvailability = () => {
+    return api.get(
+        '/appointments/my-availability/'
+    )
+}
+
+export const updateAppointmentStatus = (id, status) => {
+
+    return api.patch(
+        `/appointments/doctor/appointments/${id}/status/`,
+        {
+            status
+        }
+    )
+
+}
+
+export const getDoctorDashboard = () =>
+    api.get(
+        '/appointments/doctor/dashboard/'
+    )

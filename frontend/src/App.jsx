@@ -15,6 +15,8 @@ import MyAppointments from './pages/MyAppointments'
 import EditAppointment from './pages/EditAppointment'
 import AppointmentHistory from './pages/AppointmentHistory'
 import MyProfile from './pages/MyProfile'
+import DoctorAppointments from './pages/DoctorAppointments'
+import DoctorSchedule from './pages/DoctorSchedule'
 
 // Redirige al dashboard correspondiente si ya hay sesión
 const RootRedirect = () => {
@@ -42,6 +44,8 @@ const App = () => {
         <Route path="/appointments/edit" element={<EditAppointment/>}/>
         <Route path="/appointments/history" element={<AppointmentHistory />}/>
         <Route path="/profile" element={<MyProfile />}/>
+        <Route path="/doctor/appointments" element={<DoctorAppointments />}/>
+        <Route path="/doctor/schedule" element={<DoctorSchedule />}/>
       </Routes>
     </BrowserRouter>
   )

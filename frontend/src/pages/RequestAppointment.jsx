@@ -40,7 +40,17 @@ const RequestAppointment = () => {
     })
 
 
-    const [message, setMessage] = useState('')
+    const [toast, setToast] = useState(null)
+
+    const showToast = (msg, type = 'success') => {
+
+        setToast({ msg, type })
+
+        setTimeout(() => {
+            setToast(null)
+        }, 3000)
+
+    }
 
 
     useEffect(() => {
@@ -138,7 +148,10 @@ const RequestAppointment = () => {
             !form.appointment_date ||
             !form.appointment_time
         ) {
-            setMessage("Todos los campos son obligatorios")
+            showToast(
+                "Todos los campos son obligatorios",
+                "error"
+            )
             return
         }
 
@@ -146,7 +159,7 @@ const RequestAppointment = () => {
 
             await createAppointment(form)
 
-            setMessage(
+            showToast(
                 "Cita solicitada correctamente"
             )
 
@@ -163,8 +176,9 @@ const RequestAppointment = () => {
 
             console.log(error.response?.data)
 
-            setMessage(
-                "Error al solicitar cita"
+            showToast(
+                "Error al solicitar cita",
+                "error"
             )
 
         }
@@ -178,6 +192,22 @@ const RequestAppointment = () => {
         <div className="min-h-screen bg-slate-50">
 
             <Navbar role={role} username={username} />
+            {
+                toast && (
+
+                    <div
+                        className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium transition-all ${toast.type === 'error'
+                                ? 'bg-red-600 text-white'
+                                : 'bg-teal-600 text-white'
+                            }`}
+                    >
+
+                        {toast.msg}
+
+                    </div>
+
+                )
+            }
             <div><br></br></div>
             <button
                 onClick={() => navigate('/dashboard/patient')}
@@ -193,23 +223,27 @@ const RequestAppointment = () => {
                     Solicitar cita médica
                 </h1>
 
+                <p className="text-slate-500 mt-2 mb-8">
+                    Selecciona una especialidad, el médico de tu preferencia y un horario disponible.
+                </p>
+
 
                 <form
                     onSubmit={handleSubmit}
-                    className="bg-white rounded-2xl p-6 space-y-5 shadow"
+                    className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 space-y-6"
                 >
 
 
                     <div>
 
-                        <label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
                             Especialidad
                         </label>
 
                         <select
                             value={form.specialty}
                             onChange={handleSpecialtyChange}
-                            className="w-full border rounded-lg p-2"
+                            className=" w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 "
                         >
 
                             <option value="">
@@ -239,7 +273,7 @@ const RequestAppointment = () => {
 
                     <div>
 
-                        <label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
                             Médico
                         </label>
 
@@ -250,7 +284,7 @@ const RequestAppointment = () => {
 
                             onChange={handleDoctorChange}
 
-                            className="w-full border rounded-lg p-2 disabled:bg-gray-100"
+                            className=" w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
 
                         >
 
@@ -285,7 +319,7 @@ const RequestAppointment = () => {
 
                     <div>
 
-                        <label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
                             Fecha
                         </label>
 
@@ -325,7 +359,7 @@ const RequestAppointment = () => {
                             min={new Date().toISOString().split('T')[0]}
                             max={maxDate}
 
-                            className="w-full border rounded-lg p-2"
+                            className=" w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 "
 
                         />
 
@@ -335,7 +369,7 @@ const RequestAppointment = () => {
 
                     <div>
 
-                        <label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
                             Hora
                         </label>
 
@@ -351,7 +385,7 @@ const RequestAppointment = () => {
                                 })
                             }
 
-                            className="w-full border rounded-lg p-2"
+                            className=" w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 "
 
                         >
 
@@ -378,29 +412,29 @@ const RequestAppointment = () => {
 
                         </select>
 
+                        {
+                            availability.length > 0 && (
+                                <div className="bg-teal-50 border border-teal-100 rounded-xl p-3">
+                                    <p className="text-sm text-teal-700">
+                                        Horarios disponibles: {availability.length}
+                                    </p>
+                                </div>
+                            )
+                        }
+
 
                     </div>
 
                     <button
 
-                        className="w-full bg-teal-600 text-white py-3 rounded-xl font-semibold">
+                        className="w-full bg-teal-600 text-white font-semibold py-3 rounded-xl hover:bg-teal-700 transition shadow-sm cursor-pointer">
                         Solicitar cita
                     </button>
                 </form>
 
 
 
-                {
-                    message &&
-                    <p
-                        className={`mt-4 text-center font-medium ${message.includes('correctamente')
-                            ? 'text-teal-600'
-                            : 'text-red-600'
-                            }`}
-                    >
-                        {message}
-                    </p>
-                }
+                
 
 
             </main>

@@ -98,3 +98,65 @@ class MyAppointmentSerializer(serializers.ModelSerializer):
             'appointment_time',
             'status',
         )
+
+class DoctorAppointmentSerializer(
+    serializers.ModelSerializer
+):
+
+    patient_name = serializers.CharField(
+        source='patient.username'
+    )
+
+    specialty_name = serializers.CharField(
+        source='specialty.name'
+    )
+
+    class Meta:
+
+        model = Appointment
+
+        fields = (
+            'id',
+            'patient_name',
+            'specialty_name',
+            'appointment_date',
+            'appointment_time',
+            'status'
+        )
+
+class DoctorScheduleSerializer(serializers.ModelSerializer):
+
+    patient_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DoctorAvailability
+        fields = (
+            'id',
+            'date',
+            'time',
+            'is_available',
+            'patient_name'
+        )
+
+    def get_patient_name(self, obj):
+
+        appointment = Appointment.objects.filter(
+            doctor=obj.doctor,
+            appointment_date=obj.date,
+            appointment_time=obj.time
+        ).exclude(
+            status='cancelled'
+        ).first()
+
+        if appointment:
+            return appointment.patient.username
+
+        return None
+
+class DoctorDashboardSerializer(serializers.Serializer):
+
+    appointments_today = serializers.IntegerField()
+
+    appointments_week = serializers.IntegerField()
+
+    attended_patients = serializers.IntegerField()
