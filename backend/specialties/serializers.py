@@ -7,8 +7,20 @@ class SpecialtySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Specialty
-        fields = ('id', 'name', 'description', 'is_active', 'doctor_count', 'created_at')
-        read_only_fields = ('id', 'created_at', 'doctor_count')
+        fields = (
+            'id',
+            'name',
+            'description',
+            'appointment_cost',
+            'is_active',
+            'doctor_count',
+            'created_at'
+        )
+        read_only_fields = (
+            'id',
+            'created_at',
+            'doctor_count'
+        )
 
     def validate_name(self, value):
         qs = Specialty.objects.filter(name__iexact=value)
