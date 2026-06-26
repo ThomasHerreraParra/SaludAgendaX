@@ -44,3 +44,28 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
+
+#Esto es para el superAdmin y asi no romper el modelo de arriba que ya usa pacientes
+class EPSConfiguration(models.Model):
+    """
+    HU-13 / HU-14:
+    Configuración de límites por EPS.
+    """
+
+    eps_name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    appointment_limit = models.PositiveIntegerField(
+        default=0
+    )
+
+    budget_limit = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    def __str__(self):
+        return self.eps_name

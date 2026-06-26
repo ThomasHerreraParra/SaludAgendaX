@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { getUsers, deactivatePatient, reactivatePatient, deactivateDoctor, assignSpecialty } from '../api/auth'
+import { getUsers, deactivatePatient, reactivatePatient, deactivateDoctor, assignSpecialty, reactivateDoctor } from '../api/auth'
 import {
   getSpecialties,
   createSpecialty,
@@ -95,6 +95,28 @@ const DashboardAdmin = () => {
       showToast(`Médico ${name} desactivado.`)
     } catch {
       showToast('Error al desactivar médico', 'error')
+    }
+  }
+
+  const handleReactivateDoctor = async (id, name) => {
+    try {
+      await reactivateDoctor(id)
+
+      setDoctors((d) =>
+        d.map((u) =>
+          u.id === id
+            ? { ...u, is_active: true }
+            : u
+        )
+      )
+
+      showToast(`Médico ${name} reactivado.`)
+
+    } catch {
+      showToast(
+        'Error al reactivar médico',
+        'error'
+      )
     }
   }
 
@@ -284,7 +306,7 @@ const DashboardAdmin = () => {
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === t
+              className={`px-4 py-2 cursor-pointer rounded-lg text-sm font-medium transition-all ${tab === t
                 ? 'bg-white text-teal-700 shadow-sm'
                 : 'text-slate-500 hover:text-slate-700'
                 }`}
@@ -351,7 +373,7 @@ const DashboardAdmin = () => {
                           {p.is_active ? (
                             <button
                               onClick={() => handleDeactivatePatient(p.id, p.full_name || p.username)}
-                              className="text-xs text-red-500 hover:text-red-700 font-medium px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                              className="text-xs text-red-500 hover:text-red-700 font-medium px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
                             >
                               Desactivar
                             </button>
@@ -415,16 +437,33 @@ const DashboardAdmin = () => {
                         <td className="px-5 py-3 flex gap-2">
                           <button
                             onClick={() => setAssignModal({ doctorId: d.id, doctorName: d.full_name || d.username })}
-                            className="text-xs text-blue-600 hover:text-blue-800 font-medium px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+                            className="text-xs text-blue-600 hover:text-blue-800 font-medium px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
                           >
                             Asignar esp.
                           </button>
-                          {d.is_active && (
+                          {d.is_active ? (
                             <button
-                              onClick={() => handleDeactivateDoctor(d.id, d.full_name || d.username)}
-                              className="text-xs text-red-500 hover:text-red-700 font-medium px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+                              onClick={() =>
+                                handleDeactivateDoctor(
+                                  d.id,
+                                  d.full_name || d.username
+                                )
+                              }
+                              className="text-xs text-red-500 hover:text-red-700 font-medium px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
                             >
                               Desactivar
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                handleReactivateDoctor(
+                                  d.id,
+                                  d.full_name || d.username
+                                )
+                              }
+                              className="text-xs text-teal-600 hover:text-teal-800 font-medium px-3 py-1.5 rounded-lg hover:bg-teal-50 transition-colors cursor-pointer"
+                            >
+                              Reactivar
                             </button>
                           )}
                         </td>
@@ -449,7 +488,7 @@ const DashboardAdmin = () => {
               </h2>
               <button
                 onClick={() => setShowNewSpec(!showNewSpec)}
-                className="bg-teal-600 text-white text-sm px-4 py-2 rounded-xl font-medium hover:bg-teal-700 transition-colors"
+                className="bg-teal-600 text-white text-sm px-4 py-2 rounded-xl font-medium hover:bg-teal-700 transition-colors cursor-pointer"
               >
                 + Nueva especialidad
               </button>
@@ -508,7 +547,7 @@ const DashboardAdmin = () => {
                       setNewCost(s.appointment_cost)
 
                     }}
-                    className="mt-4 w-full border border-teal-200 text-teal-700 py-2 rounded-xl hover:bg-teal-50 transition"
+                    className="mt-4 w-full border border-teal-200 text-teal-700 py-2 rounded-xl hover:bg-teal-50 transition cursor-pointer"
                   >
                     Editar costo
                   </button>

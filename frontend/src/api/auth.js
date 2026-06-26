@@ -24,3 +24,6 @@ export const deactivateDoctor = (id) =>
 
 export const assignSpecialty = (doctorId, specialtyId) =>
   api.patch(`/users/doctors/${doctorId}/assign-specialty/`, { specialty_id: specialtyId })
+
+export const reactivateDoctor = (id) =>
+  api.patch(`/users/doctors/${id}/reactivate/`)

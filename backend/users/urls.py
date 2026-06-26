@@ -10,6 +10,9 @@ from .views import (
     DeactivateDoctorView,
     AssignSpecialtyView,
     UpdateProfileView,
+    ReactivateDoctorView,
+    EPSConfigurationListView,
+    EPSConfigurationUpdateView,
 )
 
 urlpatterns = [
@@ -37,4 +40,9 @@ urlpatterns = [
     #HU-3
     path('me/update/', UpdateProfileView.as_view(), name='update-profile'),
 
+    path('users/doctors/<int:pk>/reactivate/', ReactivateDoctorView.as_view(), name='reactivate-doctor'),
+
+    path("eps/", EPSConfigurationListView.as_view(), name="eps-list"),
+
+    path("eps/<int:pk>/", EPSConfigurationUpdateView.as_view(), name="eps-update"),
 ]

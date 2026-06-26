@@ -176,8 +176,11 @@ const RequestAppointment = () => {
 
             console.log(error.response?.data)
 
+            const backendError =
+                error.response?.data?.non_field_errors?.[0]
+
             showToast(
-                "Error al solicitar cita",
+                backendError || "Error al solicitar la cita.",
                 "error"
             )
 
@@ -197,8 +200,8 @@ const RequestAppointment = () => {
 
                     <div
                         className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium transition-all ${toast.type === 'error'
-                                ? 'bg-red-600 text-white'
-                                : 'bg-teal-600 text-white'
+                            ? 'bg-red-600 text-white'
+                            : 'bg-teal-600 text-white'
                             }`}
                     >
 
@@ -434,7 +437,7 @@ const RequestAppointment = () => {
 
 
 
-                
+
 
 
             </main>

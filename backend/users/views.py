@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import User
+from .models import User, EPSConfiguration
 from .token import CustomTokenObtainPairSerializer
 from .permissions import IsAdminOrSuperAdmin
 
@@ -12,7 +12,8 @@ from .serializers import (
     RegisterSerializer,
     UserSummarySerializer,
     AssignSpecialtySerializer,
-    UpdateProfileSerializer
+    UpdateProfileSerializer,
+    EPSConfigurationSerializer
 )
 
 
@@ -159,3 +160,64 @@ class AssignSpecialtyView(APIView):
             'specialty_id': specialty.id,
             'specialty_name': specialty.name,
         })
+
+
+class ReactivateDoctorView(APIView):
+    permission_classes = [IsAdminOrSuperAdmin]
+
+    def patch(self, request, pk):
+        try:
+            doctor = User.objects.get(pk=pk, role='doctor')
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "Médico no encontrado."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        doctor.is_active = True
+        doctor.save()
+
+        return Response(
+            {"detail": "Doctor reactivado correctamente."},
+            status=status.HTTP_200_OK
+        )
+
+class EPSConfigurationListView(generics.ListAPIView):
+    """
+    HU-13 / HU-14
+    Lista las configuraciones de todas las EPS.
+    """
+
+    serializer_class = EPSConfigurationSerializer
+    permission_classes = [IsAdminOrSuperAdmin]
+
+    def get_queryset(self):
+
+        # Obtener todas las EPS distintas registradas por pacientes
+        eps_list = (
+            User.objects
+            .exclude(eps__isnull=True)
+            .exclude(eps="")
+            .values_list("eps", flat=True)
+            .distinct()
+        )
+
+        # Crear automáticamente la configuración si no existe
+        for eps in eps_list:
+
+            EPSConfiguration.objects.get_or_create(
+                eps_name=eps
+            )
+
+        return EPSConfiguration.objects.all().order_by("eps_name")
+
+
+class EPSConfigurationUpdateView(generics.UpdateAPIView):
+    """
+    HU-13 / HU-14
+    Actualiza presupuesto y tope de citas.
+    """
+
+    queryset = EPSConfiguration.objects.all()
+    serializer_class = EPSConfigurationSerializer
+    permission_classes = [IsAdminOrSuperAdmin]

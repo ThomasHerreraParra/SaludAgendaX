@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Appointment, DoctorAvailability
 from datetime import date
+from users.models import EPSConfiguration
 
 
 class DoctorAvailabilitySerializer(serializers.ModelSerializer):
@@ -37,6 +38,53 @@ class AppointmentSerializer(serializers.ModelSerializer):
         doctor = data.get('doctor')
         appointment_time = data.get('appointment_time')
 
+        patient = self.context['request'].user
+        try:
+
+            eps_config = EPSConfiguration.objects.get(
+                eps_name=patient.eps
+            )
+
+        except EPSConfiguration.DoesNotExist:
+
+            eps_config = None
+
+        if eps_config and eps_config.appointment_limit > 0:
+            total_appointments = Appointment.objects.filter(
+                patient__eps=patient.eps
+            ).exclude(
+                status='cancelled'
+            ).count()
+
+            if total_appointments >= eps_config.appointment_limit:
+
+                raise serializers.ValidationError(
+                    "La EPS alcanzó el número máximo de citas permitidas."
+                )
+
+        if eps_config and eps_config.budget_limit > 0:
+
+            appointments = Appointment.objects.filter(
+                patient__eps=patient.eps
+            ).exclude(
+                status='cancelled'
+            )
+
+            total_budget = sum(
+                appointment.specialty.appointment_cost
+                for appointment in appointments
+            )
+
+            projected_budget = (
+                total_budget +
+                data['specialty'].appointment_cost
+            )
+
+            if projected_budget > eps_config.budget_limit:
+
+                raise serializers.ValidationError(
+                    "La EPS superó el presupuesto disponible."
+                )
 
         exists = DoctorAvailability.objects.filter(
             doctor=doctor,
