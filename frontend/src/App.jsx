@@ -17,6 +17,7 @@ import AppointmentHistory from './pages/AppointmentHistory'
 import MyProfile from './pages/MyProfile'
 import DoctorAppointments from './pages/DoctorAppointments'
 import DoctorSchedule from './pages/DoctorSchedule'
+import GlobalConfiguration from './pages/GlobalConfiguration'
 
 // Redirige al dashboard correspondiente si ya hay sesión
 const RootRedirect = () => {
@@ -39,13 +40,14 @@ const App = () => {
         <Route path="/dashboard/superadmin" element={<DashboardSuperAdmin />} />
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
-        <Route path="/appointments/request" element={<RequestAppointment />}/>
-        <Route path="/appointments/my" element={<MyAppointments />}/>
-        <Route path="/appointments/edit" element={<EditAppointment/>}/>
-        <Route path="/appointments/history" element={<AppointmentHistory />}/>
-        <Route path="/profile" element={<MyProfile />}/>
-        <Route path="/doctor/appointments" element={<DoctorAppointments />}/>
-        <Route path="/doctor/schedule" element={<DoctorSchedule />}/>
+        <Route path="/appointments/request" element={<RequestAppointment />} />
+        <Route path="/appointments/my" element={<MyAppointments />} />
+        <Route path="/appointments/edit" element={<EditAppointment />} />
+        <Route path="/appointments/history" element={<AppointmentHistory />} />
+        <Route path="/profile" element={<MyProfile />} />
+        <Route path="/doctor/appointments" element={<DoctorAppointments />} />
+        <Route path="/doctor/schedule" element={<DoctorSchedule />} />
+        <Route path="/global-configuration" element={<GlobalConfiguration />}/>
       </Routes>
     </BrowserRouter>
   )

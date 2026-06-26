@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import User
-
+from .models import User, EPSConfiguration, GlobalConfiguration
 
 class RegisterSerializer(serializers.ModelSerializer):
 
@@ -123,3 +122,30 @@ class AssignSpecialtySerializer(serializers.Serializer):
         if not Specialty.objects.filter(pk=value, is_active=True).exists():
             raise serializers.ValidationError("Especialidad no encontrada o inactiva.")
         return value
+
+class EPSConfigurationSerializer(serializers.ModelSerializer):
+    """
+    HU-13 / HU-14:
+    Configuración de límites por EPS.
+    """
+
+    class Meta:
+        model = EPSConfiguration
+        fields = [
+            "id",
+            "eps_name",
+            "appointment_limit",
+            "budget_limit",
+        ]
+
+class GlobalConfigurationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GlobalConfiguration
+        fields = (
+            "workday_start",
+            "workday_end",
+            "max_days_in_advance",
+            "notifications_enabled",
+            "holidays_enabled",
+        )

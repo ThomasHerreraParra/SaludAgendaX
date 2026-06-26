@@ -42,6 +42,8 @@ const RequestAppointment = () => {
 
     const [toast, setToast] = useState(null)
 
+    const [calendarView, setCalendarView] = useState('day')
+
     const showToast = (msg, type = 'success') => {
 
         setToast({ msg, type })
@@ -176,8 +178,11 @@ const RequestAppointment = () => {
 
             console.log(error.response?.data)
 
+            const backendError =
+                error.response?.data?.non_field_errors?.[0]
+
             showToast(
-                "Error al solicitar cita",
+                backendError || "Error al solicitar la cita.",
                 "error"
             )
 
@@ -185,6 +190,46 @@ const RequestAppointment = () => {
 
     }
 
+
+    const formatDate = (date) =>
+        date.toISOString().split('T')[0]
+
+    const getAvailableDates = () => {
+
+        const dates = []
+
+        const base = new Date()
+
+        let totalDays = 7
+
+        if (calendarView === 'week')
+            totalDays = 28
+
+        if (calendarView === 'month')
+            totalDays = 30
+
+        for (let i = 0; i < totalDays; i++) {
+
+            const d = new Date(base)
+
+            d.setDate(base.getDate() + i)
+
+            dates.push({
+                value: formatDate(d),
+                day: d.toLocaleDateString('es-CO', {
+                    weekday: 'short'
+                }),
+                number: d.getDate(),
+                month: d.toLocaleDateString('es-CO', {
+                    month: 'short'
+                })
+            })
+
+        }
+
+        return dates
+
+    }
 
 
     return (
@@ -197,8 +242,8 @@ const RequestAppointment = () => {
 
                     <div
                         className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium transition-all ${toast.type === 'error'
-                                ? 'bg-red-600 text-white'
-                                : 'bg-teal-600 text-white'
+                            ? 'bg-red-600 text-white'
+                            : 'bg-teal-600 text-white'
                             }`}
                     >
 
@@ -227,6 +272,38 @@ const RequestAppointment = () => {
                     Selecciona una especialidad, el médico de tu preferencia y un horario disponible.
                 </p>
 
+                {/* Vista del calendario */}
+                <div className="flex items-center gap-3 mb-8">
+
+                    <span className="text-sm font-medium text-slate-600">
+                        Vista:
+                    </span>
+
+                    {[
+                        { id: 'day', label: 'Diaria' },
+                        { id: 'week', label: 'Semanal' },
+                        { id: 'month', label: 'Mensual' }
+                    ].map(view => (
+
+                        <button
+                            key={view.id}
+                            type="button"
+                            onClick={() => setCalendarView(view.id)}
+                            className={`
+                px-4 py-2 rounded-xl text-sm transition
+                ${calendarView === view.id
+                                    ? 'bg-teal-600 text-white'
+                                    : 'bg-white border border-slate-300 hover:bg-slate-100'
+                                }
+            `}
+                        >
+                            {view.label}
+                        </button>
+
+                    ))}
+
+                </div>
+
 
                 <form
                     onSubmit={handleSubmit}
@@ -236,36 +313,50 @@ const RequestAppointment = () => {
 
                     <div>
 
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label className="block text-sm font-medium text-slate-700 mb-3">
                             Especialidad
                         </label>
 
-                        <select
-                            value={form.specialty}
-                            onChange={handleSpecialtyChange}
-                            className=" w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 "
-                        >
-
-                            <option value="">
-                                Seleccione
-                            </option>
-
+                        <div className="grid grid-cols-2 gap-3">
 
                             {
-                                specialties.map(s => (
+                                specialties.map((specialty) => (
 
-                                    <option
-                                        key={s.id}
-                                        value={s.id}
+                                    <button
+                                        key={specialty.id}
+                                        type="button"
+                                        onClick={() =>
+                                            handleSpecialtyChange({
+                                                target: {
+                                                    value: specialty.id
+                                                }
+                                            })
+                                        }
+
+                                        className={`
+                        rounded-2xl border p-4 text-left transition
+
+                        ${String(form.specialty) === String(specialty.id)
+
+                                                ? 'bg-teal-600 text-white border-teal-600 shadow'
+
+                                                : 'bg-white border-slate-200 hover:border-teal-500 hover:bg-teal-50'
+                                            }
+                    `}
                                     >
-                                        {s.name}
-                                    </option>
+
+                                        <p className="font-semibold">
+
+                                            {specialty.name}
+
+                                        </p>
+
+                                    </button>
 
                                 ))
                             }
 
-
-                        </select>
+                        </div>
 
                     </div>
 
@@ -273,44 +364,71 @@ const RequestAppointment = () => {
 
                     <div>
 
-                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                        <label className="block text-sm font-medium text-slate-700 mb-3">
                             Médico
                         </label>
 
-                        <select
-                            value={form.doctor}
-                            disabled={!form.specialty}
-
-
-                            onChange={handleDoctorChange}
-
-                            className=" w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
-
-                        >
-
-
-                            <option value="">
-                                Seleccione
-                            </option>
-
+                        <div className="grid grid-cols-1 gap-3">
 
                             {
-                                doctors.map(d => (
 
-                                    <option
-                                        key={d.id}
-                                        value={d.id}
-                                    >
+                                doctors.length === 0
 
-                                        {d.full_name || d.username}
+                                    ?
 
-                                    </option>
+                                    <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-slate-400">
 
-                                ))
+                                        Primero selecciona una especialidad.
+
+                                    </div>
+
+                                    :
+
+                                    doctors.map((doctor) => (
+
+                                        <button
+
+                                            key={doctor.id}
+
+                                            type="button"
+
+                                            onClick={() =>
+                                                handleDoctorChange({
+                                                    target: {
+                                                        value: doctor.id
+                                                    }
+                                                })
+                                            }
+
+                                            className={`
+                        rounded-2xl border p-4 flex justify-between items-center transition
+
+                        ${String(form.doctor) === String(doctor.id)
+
+                                                    ? 'bg-teal-600 text-white border-teal-600 shadow'
+
+                                                    : 'bg-white border-slate-200 hover:border-teal-500 hover:bg-teal-50'
+                                                }
+                    `}
+                                        >
+
+                                            <div>
+
+                                                <p className="font-semibold">
+
+                                                    👨‍⚕️ {doctor.full_name || doctor.username}
+
+                                                </p>
+
+                                            </div>
+
+                                        </button>
+
+                                    ))
+
                             }
 
-
-                        </select>
+                        </div>
 
                     </div>
 
@@ -320,48 +438,82 @@ const RequestAppointment = () => {
                     <div>
 
                         <label className="block text-sm font-medium text-slate-700 mb-2">
-                            Fecha
+
+                            {calendarView === 'day' && 'Selecciona un día'}
+
+                            {calendarView === 'week' && 'Selecciona un día de la semana'}
+
+                            {calendarView === 'month' && 'Selecciona un día del mes'}
+
                         </label>
 
 
-                        <input
+                        <div className="grid grid-cols-7 gap-3">
 
-                            type="date"
+                            {getAvailableDates().map(date => (
 
-                            min={today}
+                                <button
+                                    key={date.value}
+                                    type="button"
+                                    onClick={async () => {
 
-                            value={form.appointment_date}
+                                        setForm({
+                                            ...form,
+                                            appointment_date: date.value,
+                                            appointment_time: ''
+                                        })
 
-                            onChange={async (e) => {
+                                        if (form.doctor) {
 
-                                const selectedDate = e.target.value
+                                            const res = await getAvailability(
+                                                form.doctor,
+                                                date.value
+                                            )
 
+                                            setAvailability(res.data)
 
-                                setForm({
-                                    ...form,
-                                    appointment_date: selectedDate
-                                })
+                                        }
 
+                                    }}
+                                    className={`
+                rounded-2xl border p-3 transition
 
-                                if (form.doctor) {
+                ${form.appointment_date === date.value
+                                            ? 'bg-teal-600 text-white border-teal-600'
+                                            : 'bg-white hover:bg-teal-50 border-slate-200'
+                                        }
+            `}
+                                >
 
-                                    const res = await getAvailability(
-                                        form.doctor,
-                                        selectedDate
-                                    )
+                                    <p className="text-xs uppercase">
+                                        {date.day}
+                                    </p>
 
-                                    setAvailability(res.data)
+                                    <p className="text-xl font-bold">
+                                        {date.number}
+                                    </p>
 
-                                }
+                                    <p className="text-xs">
+                                        {date.month}
+                                    </p>
 
-                            }}
+                                </button>
 
-                            min={new Date().toISOString().split('T')[0]}
-                            max={maxDate}
+                            ))}
 
-                            className=" w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 "
+                        </div>
+                        <p className="text-xs text-slate-500 mt-2">
 
-                        />
+                            {calendarView === 'day' &&
+                                'Visualizando disponibilidad para un único día.'}
+
+                            {calendarView === 'week' &&
+                                'Vista semanal: selecciona cualquier día de la semana para consultar horarios.'}
+
+                            {calendarView === 'month' &&
+                                'Vista mensual: consulta la disponibilidad de cualquier fecha del mes.'}
+
+                        </p>
 
                     </div>
 
@@ -374,51 +526,69 @@ const RequestAppointment = () => {
                         </label>
 
 
-                        <select
-
-                            value={form.appointment_time}
-
-                            onChange={
-                                e => setForm({
-                                    ...form,
-                                    appointment_time: e.target.value
-                                })
-                            }
-
-                            className=" w-full rounded-xl border border-slate-300 px-4 py-3 transition focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 "
-
-                        >
-
-                            <option value="">
-                                Seleccione horario
-                            </option>
-
+                        <div className="grid grid-cols-3 gap-3">
 
                             {
-                                availability.map(slot => (
+                                availability.length === 0 ? (
 
-                                    <option
-                                        key={slot.id}
-                                        value={slot.time}
-                                    >
+                                    <div className="col-span-3 text-center py-6 text-slate-400">
 
-                                        {slot.time}
+                                        No hay horarios disponibles.
 
-                                    </option>
+                                    </div>
 
-                                ))
+                                ) : (
+
+                                    availability.map(slot => (
+
+                                        <button
+                                            key={slot.id}
+                                            type="button"
+                                            onClick={() =>
+                                                setForm({
+                                                    ...form,
+                                                    appointment_time: slot.time
+                                                })
+                                            }
+
+                                            className={`rounded-xl border py-3 transition font-medium
+
+                    ${form.appointment_time === slot.time
+                                                    ? 'bg-teal-600 text-white border-teal-600'
+                                                    : 'bg-white border-slate-300 hover:border-teal-500 hover:bg-teal-50'
+                                                }`}
+                                        >
+
+                                            {slot.time}
+
+                                        </button>
+
+                                    ))
+
+                                )
                             }
 
-
-                        </select>
+                        </div>
 
                         {
                             availability.length > 0 && (
-                                <div className="bg-teal-50 border border-teal-100 rounded-xl p-3">
-                                    <p className="text-sm text-teal-700">
-                                        Horarios disponibles: {availability.length}
-                                    </p>
+
+                                <div className="bg-teal-50 border border-teal-100 rounded-xl p-3 flex justify-between">
+
+                                    <span className="text-sm text-teal-700">
+
+                                        Horarios disponibles
+
+                                    </span>
+
+                                    <span className="font-semibold text-teal-700">
+
+                                        {availability.length}
+
+                                    </span>
+
                                 </div>
+
                             )
                         }
 
@@ -434,7 +604,7 @@ const RequestAppointment = () => {
 
 
 
-                
+
 
 
             </main>
