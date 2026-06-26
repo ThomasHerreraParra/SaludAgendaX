@@ -13,6 +13,7 @@ from .views import (
     ReactivateDoctorView,
     EPSConfigurationListView,
     EPSConfigurationUpdateView,
+    GlobalConfigurationView
 )
 
 urlpatterns = [
@@ -45,4 +46,6 @@ urlpatterns = [
     path("eps/", EPSConfigurationListView.as_view(), name="eps-list"),
 
     path("eps/<int:pk>/", EPSConfigurationUpdateView.as_view(), name="eps-update"),
+
+    path("users/global-configuration/", GlobalConfigurationView.as_view(), name="global-configuration",),
 ]

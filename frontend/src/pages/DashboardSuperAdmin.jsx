@@ -8,6 +8,10 @@ import {
   getEPSConfigurations,
   updateEPSConfiguration,
 } from '../api/eps'
+import {
+  getGlobalConfiguration,
+  updateGlobalConfiguration
+} from '../api/users'
 
 
 const DashboardSuperAdmin = () => {
@@ -16,6 +20,17 @@ const DashboardSuperAdmin = () => {
   const username = localStorage.getItem('username')
 
   const [epsConfigs, setEpsConfigs] = useState([])
+  const [globalConfig, setGlobalConfig] = useState(null)
+
+  const [editingGlobal, setEditingGlobal] = useState(false)
+
+  const [globalForm, setGlobalForm] = useState({
+    workday_start: '',
+    workday_end: '',
+    max_days_in_advance: '',
+    notifications_enabled: true,
+    holidays_enabled: true,
+  })
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState(null)
 
@@ -44,6 +59,23 @@ const DashboardSuperAdmin = () => {
     } finally {
 
       setLoading(false)
+
+    }
+
+  }
+
+  const loadGlobalConfiguration = async () => {
+
+    try {
+
+      const { data } =
+        await getGlobalConfiguration()
+
+      setGlobalConfig(data)
+
+    } catch (error) {
+
+      console.log(error)
 
     }
 
@@ -120,6 +152,7 @@ const DashboardSuperAdmin = () => {
     }
 
     loadEPS()
+    loadGlobalConfiguration()
 
   }, [])
 
@@ -291,7 +324,8 @@ const DashboardSuperAdmin = () => {
           </div>
 
           <div
-            className="rounded-2xl border border-orange-100 bg-orange-50 p-6 opacity-70"
+            onClick={() => navigate('/global-configuration')}
+            className="cursor-pointer rounded-2xl border border-orange-100 bg-orange-50 p-6 hover:shadow-md transition"
           >
             <div className="text-3xl mb-3">
               ⚙️
@@ -302,10 +336,6 @@ const DashboardSuperAdmin = () => {
               <h3 className="font-semibold text-slate-800">
                 Configuración global
               </h3>
-
-              <span className="text-xs bg-slate-200 rounded-full px-2 py-1">
-                Próximamente
-              </span>
 
             </div>
 

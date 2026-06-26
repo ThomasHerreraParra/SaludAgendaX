@@ -13,6 +13,7 @@ from .views import (
     AppointmentHistoryView,
     DoctorAppointmentsView,
     UpdateAppointmentStatusView,
+    AppointmentLimitStatusView,
     DoctorDashboardView
 )
 
@@ -54,6 +55,12 @@ urlpatterns = [
         'my/',
         MyAppointmentsView.as_view(),
         name='my-appointments'
+    ),
+
+    path(
+        'limit-status/',
+        AppointmentLimitStatusView.as_view(),
+        name='appointment-limit-status'
     ),
 
     #Modificar citas

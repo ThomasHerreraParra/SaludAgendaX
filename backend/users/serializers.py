@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import User, EPSConfiguration
-
+from .models import User, EPSConfiguration, GlobalConfiguration
 
 class RegisterSerializer(serializers.ModelSerializer):
 
@@ -138,3 +137,15 @@ class EPSConfigurationSerializer(serializers.ModelSerializer):
             "appointment_limit",
             "budget_limit",
         ]
+
+class GlobalConfigurationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = GlobalConfiguration
+        fields = (
+            "workday_start",
+            "workday_end",
+            "max_days_in_advance",
+            "notifications_enabled",
+            "holidays_enabled",
+        )

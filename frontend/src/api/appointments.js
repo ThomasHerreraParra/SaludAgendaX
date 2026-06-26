@@ -72,3 +72,6 @@ export const getDoctorDashboard = () =>
     api.get(
         '/appointments/doctor/dashboard/'
     )
+
+export const getAppointmentLimitStatus = () =>
+    api.get('/appointments/limit-status/')

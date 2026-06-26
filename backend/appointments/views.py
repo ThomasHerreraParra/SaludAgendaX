@@ -1,12 +1,14 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 
-from users.models import User
+from users.models import User, EPSConfiguration
 from users.serializers import UserSummarySerializer
 
 from users.permissions import IsDoctor
 from users.permissions import IsPatient
 from rest_framework.permissions import BasePermission
+
+from django.db.models import Sum
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -508,4 +510,57 @@ class DoctorDashboardView(APIView):
             "appointments_today": appointments_today,
             "appointments_week": appointments_week,
             "attended_patients": attended_patients
+        })
+
+class AppointmentLimitStatusView(APIView):
+
+    permission_classes = [IsPatient]
+
+    def get(self, request):
+
+        patient = request.user
+
+        if not patient.eps:
+
+            return Response({
+                "show_warning": False
+            })
+
+        try:
+
+            config = EPSConfiguration.objects.get(
+                eps_name=patient.eps
+            )
+
+        except EPSConfiguration.DoesNotExist:
+
+            return Response({
+                "show_warning": False
+            })
+
+        appointments = Appointment.objects.filter(
+            patient=patient
+        ).exclude(
+            status='cancelled'
+        )
+
+        used = appointments.count()
+
+        remaining = max(
+            config.appointment_limit - used,
+            0
+        )
+
+        return Response({
+
+            "limit": config.appointment_limit,
+
+            "used": used,
+
+            "remaining": remaining,
+
+            "show_warning": remaining <= 2,
+
+            "blocked": remaining == 0
+
         })

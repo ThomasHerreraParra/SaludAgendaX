@@ -69,3 +69,37 @@ class EPSConfiguration(models.Model):
 
     def __str__(self):
         return self.eps_name
+
+
+class GlobalConfiguration(models.Model):
+
+    workday_start = models.TimeField(
+        default="08:00"
+    )
+
+    workday_end = models.TimeField(
+        default="17:00"
+    )
+
+    max_days_in_advance = models.PositiveIntegerField(
+        default=30
+    )
+
+    notifications_enabled = models.BooleanField(
+        default=True
+    )
+
+    holidays_enabled = models.BooleanField(
+        default=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "Configuración Global"

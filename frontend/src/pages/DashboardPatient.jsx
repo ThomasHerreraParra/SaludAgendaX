@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import {
   getMyAppointments,
-  getAppointmentHistory
+  getAppointmentHistory,
+  getAppointmentLimitStatus
 } from '../api/appointments'
 import { getMe } from '../api/users'
 
@@ -59,6 +60,8 @@ const DashboardPatient = () => {
 
   const [userData, setUserData] = useState(null)
 
+  const [limitStatus, setLimitStatus] = useState(null)
+
   useEffect(() => {
 
     const token = localStorage.getItem('access_token')
@@ -87,7 +90,11 @@ const DashboardPatient = () => {
 
       const userRes = await getMe()
 
+      const limitRes = await getAppointmentLimitStatus()
+
       setUserData(userRes.data)
+
+      setLimitStatus(limitRes.data)
 
       const pending = activeRes.data.filter(
         appointment => appointment.status === 'pending'
@@ -103,7 +110,7 @@ const DashboardPatient = () => {
 
       let nextAppointment = '—'
 
-      
+
 
       if (pendingAppointments.length > 0) {
 
@@ -150,6 +157,52 @@ const DashboardPatient = () => {
           </h1>
           <p className="text-slate-500 mt-1">¿Qué deseas hacer hoy?</p>
         </div>
+
+        {
+          limitStatus?.show_warning && (
+
+            <div
+              className={`mb-8 rounded-2xl border p-5 ${limitStatus.blocked
+                  ? 'bg-red-50 border-red-200'
+                  : 'bg-yellow-50 border-yellow-200'
+                }`}
+            >
+
+              <h2
+                className={`font-semibold mb-2 ${limitStatus.blocked
+                    ? 'text-red-700'
+                    : 'text-yellow-700'
+                  }`}
+              >
+
+                {limitStatus.blocked
+                  ? '⛔ Límite de citas alcanzado'
+                  : '⚠️ Atención'}
+
+              </h2>
+
+              <p
+                className={
+                  limitStatus.blocked
+                    ? 'text-red-600'
+                    : 'text-yellow-700'
+                }
+              >
+
+                {
+                  limitStatus.blocked
+                    ? 'Has alcanzado el número máximo de citas permitido por tu EPS. No podrás solicitar nuevas citas hasta que el límite sea actualizado.'
+                    : limitStatus.remaining === 1
+                      ? 'Te queda únicamente 1 cita disponible según la configuración de tu EPS.'
+                      : `Te quedan únicamente ${limitStatus.remaining} citas disponibles según la configuración de tu EPS.`
+                }
+
+              </p>
+
+            </div>
+
+          )
+        }
 
         {/* Resumen rápido */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">

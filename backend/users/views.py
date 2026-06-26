@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import User, EPSConfiguration
+from .models import User, EPSConfiguration, GlobalConfiguration
 from .token import CustomTokenObtainPairSerializer
 from .permissions import IsAdminOrSuperAdmin
 
@@ -13,7 +13,8 @@ from .serializers import (
     UserSummarySerializer,
     AssignSpecialtySerializer,
     UpdateProfileSerializer,
-    EPSConfigurationSerializer
+    EPSConfigurationSerializer,
+    GlobalConfigurationSerializer
 )
 
 
@@ -221,3 +222,31 @@ class EPSConfigurationUpdateView(generics.UpdateAPIView):
     queryset = EPSConfiguration.objects.all()
     serializer_class = EPSConfigurationSerializer
     permission_classes = [IsAdminOrSuperAdmin]
+
+class GlobalConfigurationView(APIView):
+
+    permission_classes = [IsAdminOrSuperAdmin]
+
+    def get(self, request):
+
+        config, _ = GlobalConfiguration.objects.get_or_create(pk=1)
+
+        serializer = GlobalConfigurationSerializer(config)
+
+        return Response(serializer.data)
+
+    def patch(self, request):
+
+        config, _ = GlobalConfiguration.objects.get_or_create(pk=1)
+
+        serializer = GlobalConfigurationSerializer(
+            config,
+            data=request.data,
+            partial=True
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+        return Response(serializer.data)
