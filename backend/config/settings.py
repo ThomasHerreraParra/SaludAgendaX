@@ -1,13 +1,16 @@
+import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-44gb=k53s=dq!a#64%_8sntn_)h9wfv!xz6lwf#7lbf6sdns3d'
+load_dotenv(BASE_DIR / '.env')
 
-DEBUG = True
-
-ALLOWED_HOSTS = []
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-44gb=k53s=dq!a#64%_8sntn_)h9wfv!xz6lwf#7lbf6sdns3d')
+DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('DJANGO_ALLOWED_HOSTS') else []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -54,10 +57,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+        conn_max_age=600,
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -87,8 +90,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:5175',
-]
+CORS_ALLOWED_ORIGINS = os.getenv(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:5173,http://localhost:5174,http://localhost:5175'
+).split(',')
